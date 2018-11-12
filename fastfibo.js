@@ -125,4 +125,4 @@ const fibo = (n) => {
   return matrixExp(n-1)[0][0].valueOf();
 };
 
-console.log(fibo(10000));
+console.log(fibo(200000));
