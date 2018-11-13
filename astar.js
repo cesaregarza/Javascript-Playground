@@ -1,357 +1,261 @@
-const generateNDimensionalSquareGrid = (n, l) => {
-    if (n){
-      return Array.from({length: l}, () => generateNDimensionalSquareGrid(n - 1, l));
-    } else {
-      return Math.floor(Math.random() * 100000);
-    }
-  };
-  
-let input3 = generateNDimensionalSquareGrid(2, 100);
-
-const input = [
-  [12, 30, 17, 84, 4],
-  [98, 68, 7, 71, 9],
-  [13, 25, 18, 82, 8],
-  [22, 70, 97, 31, 99],
-  [0, 33, 19, 52, 24],
-];
-const testInput = [
-    [3, 999, 3, 3, 3],
-    [3, 999, 3, 999, 3],
-    [3, 999, 3, 999, 3],
-    [3, 999, 3, 999, 3],
-    [3, 3, 3, 999, 3]
-];
-
-const input2 = [
-    [6194, 9971, 3376, 5245, 7711, 1031, 3308, 9285, 9799, 9657, 8769, 1001, 8272, 9415, 698, 6578, 5714, 9927, 1598, 4774, 1957, 2279, 6102, 9847, 8694, 3260, 3855, 6666, 8169, 1759, 83, 2591, 2337, 6178, 2028, 7166, 5775, 8179, 5466, 400, 9872, 4033, 5861, 3924, 9374, 441, 1929, 11, 1851, 4164],
-    [3574, 291, 3032, 7735, 733, 4531, 7173, 6370, 3312, 1959, 5642, 4913, 9930, 4140, 4052, 1055, 564, 4788, 375, 978, 8033, 8803, 7111, 6857, 8369, 561, 7231, 9661, 2061, 4525, 2304, 7600, 5938, 3525, 8751, 6400, 3163, 1568, 980, 7477, 3551, 3434, 5749, 9117, 2530, 1071, 8715, 7010, 4350, 6802],
-    [7505, 9159, 825, 345, 5117, 7825, 9674, 1089, 8459, 6545, 3606, 9555, 2496, 2210, 6439, 9986, 3169, 699, 426, 8470, 4035, 7110, 537, 2235, 4400, 7143, 2006, 8395, 7984, 4595, 3031, 3952, 1087, 4578, 2699, 2689, 4807, 1647, 1676, 6159, 1954, 9835, 9737, 3047, 8718, 973, 331, 5723, 4597, 305],
-    [5088, 8384, 9114, 2699, 5392, 230, 4954, 7775, 4569, 836, 5004, 1795, 6651, 525, 9407, 6925, 8188, 7239, 7531, 6074, 8211, 1720, 3497, 7671, 5644, 9203, 4557, 1002, 531, 2961, 632, 7368, 7382, 3895, 8527, 2384, 3348, 2642, 2033, 4790, 8150, 1152, 2015, 5708, 5105, 3860, 2132, 1417, 877, 1284],
-    [2435, 6627, 6023, 1197, 5959, 5005, 6183, 271, 8323, 2542, 9468, 3441, 5283, 9223, 3732, 7398, 7988, 7201, 623, 11, 7402, 3807, 8443, 7311, 4957, 2319, 5558, 4710, 5422, 3662, 9430, 7877, 7945, 4995, 7447, 9363, 1113, 2178, 6400, 9273, 2623, 1436, 5752, 7103, 2624, 260, 9095, 5737, 2535, 1130],
-    [4897, 1804, 9461, 173, 2700, 7070, 282, 6745, 4670, 7714, 3103, 7135, 7913, 2264, 8151, 8175, 7060, 9503, 4788, 5674, 1064, 7121, 1299, 2867, 4422, 4519, 1186, 7194, 9233, 5701, 7529, 1810, 5874, 400, 5737, 3751, 6732, 6129, 196, 368, 2527, 8763, 1528, 6749, 5079, 274, 8806, 3587, 3915, 8408],
-    [2661, 5420, 9548, 4518, 5032, 8449, 5423, 7532, 7001, 1364, 9848, 1902, 4137, 356, 2148, 7675, 1804, 4776, 4705, 937, 2977, 1896, 6846, 9708, 192, 6037, 6454, 2451, 6390, 6922, 581, 8212, 2384, 970, 2650, 2551, 7989, 3202, 3041, 4237, 1945, 9213, 6174, 798, 0, 6120, 9482, 7888, 291, 4134],
-    [6083, 396, 744, 6683, 945, 7206, 4422, 7464, 7316, 9118, 3801, 124, 4522, 7986, 5186, 6757, 2153, 1266, 6464, 433, 3139, 3564, 9779, 4745, 6261, 8148, 9114, 3124, 4787, 1214, 9078, 6672, 3523, 2395, 3758, 9669, 1205, 6241, 577, 291, 9236, 4834, 4029, 1057, 480, 8546, 6094, 2551, 9548, 3814],
-    [1461, 7993, 3836, 212, 7353, 8578, 9217, 9688, 2915, 1465, 8458, 6736, 398, 6111, 9848, 2418, 7647, 7303, 486, 3530, 326, 4163, 2510, 9249, 5867, 3520, 4876, 8522, 9801, 3634, 2310, 1151, 4078, 9191, 1310, 8568, 961, 8113, 6753, 7345, 7980, 8819, 2806, 443, 4104, 188, 5274, 262, 7130, 8154],
-    [8764, 4463, 9273, 8134, 1670, 5468, 3900, 3832, 8469, 3254, 3378, 9368, 428, 2774, 9046, 1653, 1526, 8155, 4670, 4996, 2835, 2376, 3471, 2313, 9514, 9780, 5895, 5831, 9507, 2192, 1326, 6648, 1581, 8249, 1437, 7907, 8935, 2953, 9563, 1597, 7781, 5672, 2076, 6661, 1648, 4024, 9854, 5286, 226, 5811],
-    [2927, 3363, 2313, 8797, 6397, 4625, 8722, 4854, 6270, 3483, 3808, 9988, 3424, 6937, 5266, 2016, 477, 6698, 1902, 9881, 5773, 4122, 1236, 2328, 4958, 3090, 9191, 2555, 9042, 7433, 5921, 2951, 1886, 9200, 8182, 5133, 8113, 4591, 8261, 7393, 83, 2710, 7476, 3086, 7501, 1574, 4489, 6174, 5851, 5270],
-    [867, 7814, 8944, 851, 9110, 4900, 2730, 3380, 9727, 7583, 8431, 327, 9061, 3659, 5303, 2280, 7820, 843, 7051, 6717, 9193, 5408, 7327, 2196, 4126, 3901, 9334, 8238, 4660, 4760, 1416, 2296, 6806, 959, 65, 9721, 6819, 9328, 773, 6079, 1118, 8440, 6773, 7761, 4725, 6479, 5062, 9298, 3422, 2233],
-    [8378, 7527, 9160, 311, 5285, 360, 4681, 5713, 1550, 5960, 3346, 5770, 8001, 1511, 4024, 8011, 1121, 2988, 8447, 8919, 3228, 2024, 2326, 5088, 140, 8293, 9958, 3295, 2054, 8477, 1484, 9479, 1397, 2824, 1057, 9501, 2368, 3792, 1486, 7620, 5531, 8952, 3703, 1032, 637, 390, 8055, 5200, 5951, 2216],
-    [9787, 2624, 8085, 4933, 1511, 2216, 4744, 8854, 9126, 5386, 5290, 1647, 9089, 6830, 1235, 2693, 8626, 7852, 660, 2213, 9035, 4354, 7915, 9741, 7992, 1710, 5569, 1387, 9685, 8161, 1178, 859, 9638, 2108, 9447, 8335, 1509, 7728, 9770, 2952, 6378, 2140, 9627, 2158, 3741, 289, 3632, 7154, 7379, 379],
-    [3223, 556, 3271, 3047, 7993, 2431, 4598, 7744, 2029, 4397, 4411, 8412, 7825, 1364, 5732, 2817, 4095, 481, 5985, 8415, 2447, 7565, 5621, 2073, 9967, 6516, 5035, 9571, 8435, 7590, 7820, 4479, 4537, 1330, 8447, 604, 5818, 8081, 2725, 5970, 9183, 7422, 550, 7931, 1795, 949, 7084, 3522, 1801, 1118],
-    [2053, 4039, 6586, 7191, 940, 1496, 1816, 1104, 9785, 4399, 4634, 6631, 407, 434, 4800, 4495, 4346, 6149, 9920, 3278, 7427, 3085, 7747, 1459, 3575, 7653, 595, 75, 8601, 3223, 5313, 2437, 8587, 7418, 8758, 7879, 6389, 3605, 9479, 3935, 520, 7794, 9626, 8881, 8229, 1365, 1905, 7309, 9317, 6537],
-    [603, 7790, 2845, 2906, 846, 481, 6415, 4623, 6854, 2447, 150, 5026, 7014, 3367, 5154, 38, 2579, 3212, 8127, 4766, 2441, 168, 3642, 3297, 212, 4718, 331, 6405, 5948, 2558, 966, 5511, 3330, 7134, 1299, 7518, 1116, 3249, 3358, 7351, 9775, 3797, 4463, 4517, 9669, 1602, 8014, 921, 310, 4164],
-    [1686, 462, 9268, 7931, 4280, 2559, 3768, 4117, 6510, 351, 1422, 7974, 5353, 5250, 4301, 3303, 4616, 2945, 528, 9079, 3791, 2794, 1344, 6662, 9648, 9241, 4230, 2329, 691, 5079, 7890, 1507, 9130, 3724, 7718, 2140, 7453, 6043, 9633, 5764, 1159, 1866, 1549, 202, 4653, 2966, 1444, 7168, 4511, 6418],
-    [4062, 2548, 9372, 8586, 186, 4642, 5816, 236, 5112, 5309, 2078, 5255, 909, 458, 3349, 3902, 79, 1967, 5356, 4701, 6529, 3684, 8190, 9619, 2803, 9629, 3364, 2261, 4787, 1672, 3082, 649, 634, 7091, 3365, 176, 9563, 2636, 4922, 4551, 9638, 2169, 692, 427, 9928, 5879, 5307, 9301, 3854, 6229],
-    [1392, 8253, 8099, 469, 264, 109, 4839, 6053, 3290, 5409, 9203, 382, 1786, 9347, 4162, 4312, 9267, 746, 7177, 8167, 876, 7935, 6025, 6706, 9344, 1971, 4585, 5185, 9237, 4144, 482, 344, 9890, 8827, 4458, 4497, 5278, 7189, 638, 4567, 8298, 570, 4610, 7952, 6850, 1598, 4056, 5754, 2535, 8418],
-    [5487, 88, 8402, 8625, 3093, 1138, 219, 5233, 2896, 7150, 6744, 5797, 6052, 4885, 6207, 4546, 6867, 9122, 7931, 5873, 8888, 4594, 1716, 6383, 2105, 4115, 3059, 5038, 905, 7367, 3607, 2607, 6475, 5786, 2389, 5365, 3282, 8780, 4726, 3974, 6900, 836, 2781, 7946, 6493, 1555, 662, 1097, 2282, 5498],
-    [8235, 853, 9321, 1493, 3161, 9323, 6715, 2351, 9822, 8608, 3278, 7589, 6503, 3865, 781, 984, 1967, 9927, 1718, 1093, 3290, 8201, 2212, 2913, 2236, 9952, 20, 9892, 846, 631, 7342, 1689, 6605, 3736, 9502, 6434, 4357, 6710, 8527, 4642, 61, 7108, 3813, 1865, 2527, 2959, 3256, 8291, 6057, 2057],
-    [612, 7067, 9148, 2605, 4993, 1745, 7302, 7890, 8338, 1060, 3591, 8416, 1541, 9405, 2433, 2683, 5177, 2176, 382, 9214, 8539, 6638, 5037, 7523, 5080, 4970, 679, 5246, 1254, 9706, 6871, 6186, 5205, 8314, 6159, 501, 1841, 2792, 8216, 1471, 9951, 3, 9342, 5679, 4283, 4573, 9414, 4306, 9351, 5884],
-    [6307, 5991, 4060, 3368, 4494, 5449, 1687, 4123, 8071, 6696, 8882, 9542, 6761, 9790, 3925, 8161, 559, 387, 9709, 739, 772, 5905, 2655, 9688, 4023, 3047, 5521, 5546, 813, 2849, 157, 1760, 4923, 2232, 2262, 5111, 9454, 6865, 4410, 6993, 95, 6967, 326, 1492, 4099, 9186, 4936, 6685, 5684, 9290],
-    [1193, 2498, 2194, 3903, 5210, 7529, 8585, 2776, 7058, 1526, 8594, 2976, 3158, 5961, 7934, 4293, 6176, 6383, 4894, 7793, 3843, 4761, 3304, 3278, 3059, 3421, 7301, 8963, 3042, 4366, 3177, 4021, 1741, 3643, 8033, 9373, 2840, 6808, 7012, 6545, 2698, 3743, 5433, 3379, 3216, 4973, 2898, 8283, 6080, 3244],
-    [8023, 4825, 4803, 6997, 736, 3355, 5258, 2504, 82, 9806, 4957, 1195, 5765, 5993, 8907, 931, 9938, 7785, 8323, 159, 2250, 1536, 4095, 6964, 9287, 9533, 3691, 1848, 2388, 2021, 8961, 6448, 3218, 6189, 2665, 2282, 7434, 5138, 8301, 5358, 7920, 5284, 7661, 6019, 3613, 1036, 1156, 1918, 3202, 6618],
-    [2335, 5584, 8677, 4720, 7008, 1173, 6529, 2413, 2958, 6256, 7469, 1980, 1534, 7656, 3221, 2022, 5032, 9378, 4545, 4093, 4018, 4618, 8304, 8127, 1786, 9897, 8864, 1467, 3365, 3706, 6941, 5451, 6087, 6340, 6815, 8007, 4165, 9869, 5566, 5964, 7358, 664, 3614, 3270, 5947, 4957, 1450, 8154, 8086, 5821],
-    [9631, 4081, 3833, 4125, 2120, 1454, 7782, 8751, 7375, 3836, 9965, 1947, 1613, 1752, 748, 5336, 2102, 3526, 2240, 4384, 9832, 1798, 5622, 3693, 6396, 9311, 2060, 9163, 7615, 7728, 9109, 8403, 7857, 2358, 3805, 7658, 8675, 8622, 9623, 3604, 9994, 5109, 6457, 1321, 1356, 1812, 957, 1172, 2812, 5422],
-    [2660, 4931, 1500, 667, 5851, 6222, 8059, 670, 5343, 645, 2930, 7649, 8455, 9937, 6649, 8948, 7645, 9858, 2304, 4312, 1018, 6773, 363, 6255, 5226, 4441, 5470, 3979, 3808, 9990, 2903, 2932, 5573, 2876, 2187, 4096, 5178, 1141, 5366, 2239, 8204, 3431, 137, 6734, 8661, 46, 5036, 6379, 4169, 712],
-    [7669, 3003, 3370, 8679, 1385, 7125, 3829, 8655, 2413, 348, 4088, 1045, 5013, 5112, 1166, 7072, 2275, 9621, 6324, 4325, 1307, 2805, 5501, 3120, 4632, 5979, 8311, 8472, 2148, 8129, 1298, 6279, 3799, 8342, 4322, 4141, 7798, 2744, 2452, 5558, 1701, 2965, 9918, 4824, 8982, 1285, 6101, 1178, 7517, 608],
-    [1881, 1899, 2276, 6441, 1240, 9330, 2365, 3717, 1269, 1970, 7986, 1327, 913, 3548, 3995, 5324, 7084, 8740, 3047, 1511, 4082, 123, 9614, 1970, 979, 6386, 6188, 2508, 8917, 1304, 7488, 9559, 6122, 6705, 1323, 9860, 3816, 9552, 4649, 1364, 180, 6307, 6935, 5673, 1174, 7543, 2601, 8078, 209, 377],
-    [1960, 7001, 9384, 4235, 7358, 8768, 276, 9290, 4357, 268, 1858, 105, 2505, 849, 9476, 3161, 3838, 4533, 4085, 2195, 5787, 8313, 4942, 4090, 946, 8260, 5237, 2959, 862, 6943, 9739, 7034, 9939, 6818, 658, 5038, 5924, 1096, 5987, 9434, 6857, 3017, 1987, 2262, 8245, 6205, 4121, 867, 3809, 5057],
-    [2146, 4329, 8971, 1018, 8973, 2011, 1420, 1813, 3452, 4348, 6965, 1848, 9019, 7127, 9617, 1856, 8940, 8394, 8037, 3171, 2196, 7491, 5519, 999, 7845, 6069, 5275, 4611, 1123, 3508, 5790, 2840, 3913, 2071, 5505, 4295, 2759, 4914, 4737, 7979, 5108, 2514, 5814, 610, 1510, 6590, 4779, 4561, 7765, 7261],
-    [8959, 508, 755, 5525, 9832, 15, 1684, 8691, 6665, 8093, 979, 7610, 9089, 8163, 8995, 7398, 6916, 5991, 6338, 5825, 9283, 1501, 2163, 2105, 7265, 8675, 7386, 4220, 667, 3416, 5725, 9680, 5377, 4759, 7459, 6905, 5543, 1993, 6795, 1864, 7144, 5268, 8202, 3874, 5606, 190, 8800, 1033, 9842, 6760],
-    [3440, 542, 3679, 2899, 6090, 6575, 4877, 107, 5422, 2565, 1758, 5003, 4719, 5234, 5597, 4793, 7720, 897, 7732, 9226, 4876, 3833, 5390, 7695, 3846, 4245, 236, 54, 6681, 2287, 3887, 919, 2053, 7301, 9933, 9959, 9089, 2979, 1781, 6057, 607, 732, 8300, 3865, 3560, 1161, 7311, 5668, 5743, 8581],
-    [1798, 7687, 5180, 8894, 5189, 427, 5110, 9234, 1856, 9389, 1520, 7612, 8903, 3669, 7974, 96, 2135, 42, 1492, 47, 2234, 1422, 2073, 4707, 8048, 582, 3495, 7071, 2098, 6280, 8618, 3486, 1130, 3399, 7704, 3765, 7021, 8122, 8095, 9844, 5594, 4064, 5263, 6177, 3323, 5553, 200, 2731, 924, 2864],
-    [3373, 9867, 9662, 3646, 6470, 4427, 2196, 2276, 4876, 3073, 2575, 7688, 4884, 9618, 6178, 8298, 2539, 1217, 9183, 2004, 4247, 6674, 8190, 5285, 6510, 1999, 7075, 8095, 7129, 9989, 5150, 3311, 8717, 6786, 7652, 9668, 6369, 1185, 51, 2130, 9051, 1908, 2754, 7524, 1163, 4063, 7029, 5124, 9917, 3486],
-    [7258, 6148, 518, 6964, 1938, 1249, 1433, 7774, 9167, 1411, 2278, 4690, 6104, 7456, 8143, 5853, 8291, 2168, 9255, 3701, 3898, 1018, 7018, 7611, 6090, 148, 5096, 3450, 112, 3132, 9351, 7155, 7707, 5162, 120, 5832, 5687, 1391, 2622, 6994, 6028, 4154, 2405, 6605, 4111, 8233, 5172, 3872, 5451, 8391],
-    [7737, 6799, 6576, 171, 988, 7681, 3339, 4171, 9230, 9861, 5376, 7651, 4840, 7697, 4955, 1526, 6466, 5593, 7774, 6507, 843, 7142, 471, 3412, 4716, 252, 1126, 7441, 559, 524, 2597, 8105, 1872, 8806, 1596, 425, 902, 6060, 8954, 3957, 6719, 4597, 358, 1653, 9017, 1814, 4817, 7555, 9035, 8146],
-    [9379, 660, 2044, 1790, 5689, 9172, 6573, 9768, 9185, 455, 2333, 354, 3958, 2670, 4209, 5205, 9465, 1638, 1050, 2206, 7106, 6604, 7177, 3479, 7980, 5098, 3602, 1618, 4244, 1628, 3704, 203, 8487, 2677, 5374, 5798, 3312, 4525, 3955, 6904, 6741, 2826, 568, 9637, 481, 1818, 2647, 2965, 9206, 9300],
-    [749, 4985, 8856, 9948, 4992, 5399, 4228, 525, 2021, 1132, 690, 7174, 4685, 1080, 1116, 8156, 8025, 6992, 1238, 6412, 9315, 4330, 2472, 7321, 7413, 2502, 7067, 1501, 4586, 579, 5203, 3686, 718, 902, 4576, 5509, 8750, 4811, 6695, 3245, 9850, 1427, 3772, 8283, 1922, 9156, 4377, 9376, 219, 8391],
-    [1078, 160, 1359, 7060, 7786, 5485, 3205, 5813, 3025, 6857, 357, 8968, 988, 1765, 7325, 2463, 1406, 269, 8924, 7408, 9345, 1848, 1029, 5353, 2975, 4230, 7868, 4729, 6824, 6487, 8015, 3078, 914, 574, 2113, 9668, 4692, 5350, 253, 1383, 4061, 8160, 7259, 6972, 5505, 3191, 5117, 2464, 3257, 7215],
-    [9067, 3374, 7149, 2263, 9573, 6855, 7715, 5631, 5824, 1551, 6668, 6600, 4714, 9060, 5648, 1251, 6875, 7177, 1558, 4981, 4429, 7296, 8183, 1209, 2018, 6278, 6633, 45, 7238, 5613, 6447, 977, 3601, 6266, 9249, 6400, 2266, 4359, 9885, 1180, 3274, 5745, 9607, 6575, 4555, 2010, 4217, 9076, 5680, 6227],
-    [1101, 9652, 1934, 5530, 1966, 8224, 3172, 9605, 3336, 9632, 7497, 7652, 2135, 5760, 9996, 7330, 5298, 1401, 3742, 1757, 1495, 4673, 159, 6280, 2788, 2221, 3840, 472, 246, 5377, 3570, 9220, 6812, 4500, 372, 9673, 7093, 38, 8646, 9086, 8233, 7022, 330, 7530, 4855, 3608, 5805, 675, 4455, 6227],
-    [3525, 8356, 6352, 9733, 1717, 9008, 8040, 9585, 3520, 9109, 1772, 980, 4435, 2610, 4426, 9177, 7051, 7113, 8212, 3206, 8831, 5234, 444, 7090, 195, 6236, 1131, 8385, 873, 1704, 6474, 5109, 3216, 1150, 2206, 689, 1589, 4415, 6656, 7390, 3016, 959, 8875, 526, 5043, 4469, 6090, 6309, 5705, 3944],
-    [2434, 1998, 6983, 8995, 7912, 1661, 2636, 15, 2933, 1847, 1135, 8872, 2353, 5050, 6695, 6592, 702, 3194, 3201, 7654, 9363, 6481, 7463, 3165, 525, 8622, 9655, 7720, 4174, 2197, 1842, 8656, 9137, 2315, 6016, 3407, 247, 3172, 3818, 6467, 2129, 899, 4536, 5104, 2687, 2080, 8338, 9592, 6292, 66],
-    [1016, 5418, 5654, 905, 582, 178, 5437, 9297, 6856, 8857, 487, 2545, 4552, 4625, 4839, 4298, 6429, 9381, 8873, 3604, 967, 590, 2056, 1464, 1348, 6017, 2310, 2883, 1604, 3998, 659, 6786, 3334, 9685, 6585, 8624, 6192, 8827, 532, 9951, 4263, 663, 4898, 888, 5147, 9222, 3708, 4925, 4508, 7644],
-    [6827, 8881, 7729, 1457, 6871, 9200, 1563, 1904, 6630, 8970, 7008, 3992, 1951, 2906, 5406, 1251, 8618, 1065, 4350, 2826, 1572, 6856, 9758, 3098, 5112, 53, 6917, 1028, 6510, 817, 4944, 409, 863, 5193, 8622, 5063, 5098, 2270, 8015, 6780, 7819, 5228, 6980, 8073, 9854, 595, 7041, 1900, 9951, 5705],
-    [3350, 8902, 1221, 2535, 4016, 1519, 5319, 7839, 5648, 7839, 3508, 4972, 7687, 6910, 5462, 9930, 8937, 8862, 8956, 1158, 117, 6504, 6275, 586, 3574, 6636, 2544, 8814, 2822, 279, 6725, 6671, 9848, 3702, 3740, 6253, 7240, 3795, 9201, 5638, 9115, 3661, 9910, 6344, 4285, 3223, 8808, 340, 7151, 801],
-    [7710, 3915, 2166, 5145, 7450, 5992, 6774, 2339, 1714, 8249, 8306, 9652, 4676, 2378, 1361, 1821, 9821, 6104, 406, 3518, 2682, 1166, 5118, 5277, 3100, 3371, 4424, 4956, 645, 7358, 2826, 1054, 1177, 8802, 4988, 8931, 57, 1983, 1765, 2498, 3144, 5150, 7990, 3674, 2835, 5559, 9671, 2509, 6934, 7157],
-];
-
-class Node {
-  constructor(val, x, y) {
-    this._pos = `${x},${y}`;
-    this._g = undefined;
-    this._h = undefined;
-    this._f = undefined;
-    this._cost = val;
-    this._visited = false;
-    this._closed = false;
-    this._parent = null;
-  }
-  get pos(){
-      return this._pos;
-  }
-  get g () {
-      return this._g;
-  }
-  get h() {
-      return this._h;
-  }
-  get f() {
-      return this._f;
-  }
-  get cost() {
-      return this._cost;
-  }
-  get visited() {
-      return this._visited;
-  }
-  get closed() {
-      return this._closed;
-  }
-  get parent() {
-      return this._parent;
-  }
-
-  set g (newG) {
-      this._g = newG;
-  }
-  set h (newH) {
-      this._h = newH;
-  }
-  set f (newF) {
-      this._f = newF;
-  }
-  set visited(val){
-      this._visited = val;
-  }
-  set closed(val){
-      this._closed = val;
-  }
-  set parent(val){
-      this._parent = val;
-  }
-}
-
-class Heap{
-    constructor(arr, order){
+"use strict";
+class Heap {
+    constructor(arr, order, prop = null) {
         this._arr = arr;
         this._order = order;
+        this._prop = prop ? prop : null;
     }
-
-    pop(){
+    pop() {
         let l = this._arr.length - 1;
         [this._arr[0], this._arr[l]] = [this._arr[l], this._arr[0]];
         let p = this._arr.pop();
+        if (p === undefined) {
+            throw `Error popping heap`;
+        }
         this._heapify(0);
         return p;
     }
-
-    _heapify(startIndex){
-        if (startIndex > this._arr.length) return;
-
+    _heapify(startIndex) {
+        if (startIndex > this._arr.length)
+            return;
         let child1 = startIndex * 2 + 1;
         let child2 = startIndex * 2 + 2;
         let child1Exists = (this._arr[child1] != undefined);
         let child2Exists = (this._arr[child2] != undefined);
-
         let finalIndex = -1;
-
-        if (child1Exists && !this._compare(this._arr[startIndex], this._arr[child1])){
-            
-            if (child2Exists && this._compare(this._arr[child1], this._arr[child2])){
-                
-                [this._arr[startIndex], this._arr[child1]] = [this._arr[child1], this._arr[startIndex]];
-                finalIndex = child1;
-
-            } else if (child2Exists){
-                
-                [this._arr[startIndex], this._arr[child2]] = [this._arr[child2], this._arr[startIndex]];
-                finalIndex = child2;
-            } else {
+        if (child1Exists && !this._compare(this._arr[startIndex], this._arr[child1])) {
+            if (child2Exists && this._compare(this._arr[child1], this._arr[child2])) {
                 [this._arr[startIndex], this._arr[child1]] = [this._arr[child1], this._arr[startIndex]];
                 finalIndex = child1;
             }
-
-        } else if (child2Exists && !this._compare(this._arr[startIndex], this._arr[child2])){
-            
+            else if (child2Exists) {
+                [this._arr[startIndex], this._arr[child2]] = [this._arr[child2], this._arr[startIndex]];
+                finalIndex = child2;
+            }
+            else {
+                [this._arr[startIndex], this._arr[child1]] = [this._arr[child1], this._arr[startIndex]];
+                finalIndex = child1;
+            }
+        }
+        else if (child2Exists && !this._compare(this._arr[startIndex], this._arr[child2])) {
             [this._arr[startIndex], this._arr[child2]] = [this._arr[child2], this._arr[startIndex]];
             finalIndex = child2;
-
-        } else return;
-
-        if (finalIndex != -1){
+        }
+        else
+            return;
+        if (finalIndex != -1) {
             this._heapify(finalIndex);
         }
     }
-
-    _compare(a, b, equals) {
-        if (!equals) {
-          if (this._order == "max") {
-            return (a.f > b.f);
-          } else {
-            return (a.f < b.f);
-          }
-        } else {
-          if (this._order == "max") {
-            return (a.f >= b.f);
-          } else {
-            return (a.f <= b.f);
-          }
+    _compare(a, b, equals, property = this._prop) {
+        if (!property) {
+            if (!equals) {
+                if (this._order == "max") {
+                    return (a > b);
+                }
+                else {
+                    return (a < b);
+                }
+            }
+            else {
+                if (this._order == "max") {
+                    return (a >= b);
+                }
+                else {
+                    return (a <= b);
+                }
+            }
         }
-      }
-
-    insert(a){
+        else {
+            if (!equals) {
+                if (this._order == "max") {
+                    return (a[property] > b[property]);
+                }
+                else {
+                    return (a[property] < b[property]);
+                }
+            }
+            else {
+                if (this._order == "max") {
+                    return (a[property] >= b[property]);
+                }
+                else {
+                    return (a[property] <= b[property]);
+                }
+            }
+        }
+    }
+    insert(a) {
         this._arr.push(a);
         this._bubbleUp(this._arr.length - 1);
     }
-
-    _bubbleUp(startIndex){
-        if (startIndex === 0) return;
+    _bubbleUp(startIndex) {
+        if (startIndex === 0)
+            return;
         let si = startIndex + 1;
-        let parentIndex = (si - si%2)/2 - 1;
-        if (this._compare(this._arr[startIndex], this._arr[parentIndex], 1)){
+        let parentIndex = (si - si % 2) / 2 - 1;
+        if (this._compare(this._arr[startIndex], this._arr[parentIndex])) {
             [this._arr[startIndex], this._arr[parentIndex]] = [this._arr[parentIndex], this._arr[startIndex]];
-        } else return;
-
+        }
+        else
+            return;
         this._bubbleUp(parentIndex);
     }
-
-    get size(){
+    isValidHeap(startIndex) {
+        if (startIndex >= this._arr.length)
+            return [true];
+        let child1 = startIndex * 2 + 1;
+        let child2 = child1 + 1;
+        let arr = [this._arr[child1] === undefined || this._compare(this._arr[startIndex], this._arr[child1], 1), this.isValidHeap(child1)];
+        arr.push(this.isValidHeap(child2));
+        return arr.reduce((a, b) => a && b, true);
+    }
+    get size() {
         return this._arr.length;
     }
 }
-
-//Finds neighbors on the grid
-//TODO: Update to N-Dimensions
-//PARAM: grid[][];
-//PARAM: node{Node};
-//RETURN: Array[{Node},{Node},...]
-const findNeighbors = (grid, node) => {
-  let s = node.pos;
-  let [x, y] = s.split(",").map(z => parseInt(z));
-  let returner = [];
-
-  if (grid[y - 1] && grid[y - 1][x]) {
-    returner.push(grid[y - 1][x]);
-  }
-  if (grid[y + 1] && grid[y + 1][x]) {
-    returner.push(grid[y + 1][x]);
-  }
-  if (grid[y][x - 1]) {
-    returner.push(grid[y][x - 1]);
-  }
-  if (grid[y][x + 1]) {
-    returner.push(grid[y][x + 1]);
-  }
-  return returner;
-};
-
-//Returns the taxicab distance.
-// PARAM: Pos1: String "x,y"
-// PARAM: pos2: String "x,y"
-// RETURN: Number {Sum of X and Y distance}
-function taxicabDistance(pos1, pos2){
-    let [x1,y1] = pos1.split(',');
-    let [x2,y2] = pos2.split(',');
-
-    let dx = Math.abs(x1 - x2);
-    let dy = Math.abs(y1 - y2);
-
-    return dx+dy;
+class xNode {
+    constructor(val, x, y) {
+        this._pos = `${x},${y}`;
+        this._g = undefined;
+        this._h = undefined;
+        this._f = undefined;
+        this._cost = val;
+        this._visited = false;
+        this._closed = false;
+        this._parent = null;
+    }
+    get pos() {
+        return this._pos;
+    }
+    get g() {
+        return this._g;
+    }
+    get h() {
+        return this._h;
+    }
+    get f() {
+        return this._f;
+    }
+    get cost() {
+        return this._cost;
+    }
+    get visited() {
+        return this._visited;
+    }
+    get closed() {
+        return this._closed;
+    }
+    get parent() {
+        return this._parent;
+    }
+    set g(newG) {
+        this._g = newG;
+    }
+    set h(newH) {
+        this._h = newH;
+    }
+    set f(newF) {
+        this._f = newF;
+    }
+    set visited(val) {
+        this._visited = val;
+    }
+    set closed(val) {
+        this._closed = val;
+    }
+    set parent(val) {
+        this._parent = val;
+    }
 }
-
-const traverseNode = (node) => {
-    let arr = [];
-    if (node.parent !== null){
-        arr = [...traverseNode(node.parent), node.cost];
+function aStar() {
+    function init(grid) {
+        let newGrid = grid.map((x, i) => x.map((y, j) => new xNode(y, j, i)));
+        return newGrid;
     }
-    else{
-        arr = [node.cost];
-    }
-    return arr;
-};
-
-function astar(grid, startPos, endPos) {
-  //Iterate through the grid to create a grid of nodes
-  grid = grid.map((x, i) => x.map((y, j) => new Node(y, j, i)));
-
-  //determine the start and end nodes
-  let openHeap = new Heap([], "min");
-
-  let startNode = grid[startPos[0]][startPos[1]];
-  let endNode = grid[endPos[0]][endPos[1]];
-
-  //Initialize the startNode.
-  startNode.g = startNode.cost;
-  startNode.h = taxicabDistance(startNode.pos, endNode.pos);
-  startNode.f = startNode.g + startNode.h;
-
-  //Push the startNode to the openList to begin
-  openHeap.insert(startNode);
-  //while there remains stuff in the openList
-  while (openHeap.size) {
-
-    let currentNode = openHeap.pop();
-
-    //If the currentNode IS the endNode, end it
-    if (currentNode.pos == endNode.pos) {
-        //let n = traverseNode(currentNode);
-        let n = 0;
-      return [n, currentNode.f];
-    }
-
-    //Find the neighbors (Can be improved to 3D)
-    let neighbors = findNeighbors(grid, currentNode);
-
-    //Remove lowIndex from the openList and mark it closed
-    currentNode.closed = true;
-
-    //iterate through each of the neighbors
-    for (let i in neighbors){
-        let neighbor = neighbors[i];
-
-        //If the neighbor is closed, go to the next loop iteration
-        if (neighbor.closed){
-            continue;
+    function findNeighbors(grid, node) {
+        let s = node.pos;
+        let [x, y] = s.split(",").map(z => parseInt(z));
+        let returner = [];
+        if (grid[y - 1] && grid[y - 1][x]) {
+            returner.push(grid[y - 1][x]);
         }
-
-        //Calculate current gScore
-        let gScore = currentNode.g + neighbor.cost;
-        let minG = false;
-        let notVis = false;
-
-        if (!neighbor.visited){
-            minG = true;
-            neighbor.visited = true;
-            notVis = true;
-            neighbor.h = taxicabDistance(neighbor.pos, endNode.pos);
-        } else if (gScore < neighbor.g){
-            minG = true;
+        if (grid[y + 1] && grid[y + 1][x]) {
+            returner.push(grid[y + 1][x]);
         }
-
-        if (minG){
-            neighbor.parent = currentNode;
-            neighbor.g = gScore;
-            neighbor.f = neighbor.h + neighbor.g;
-            if (notVis){
-            openHeap.insert(neighbor);
+        if (grid[y][x - 1]) {
+            returner.push(grid[y][x - 1]);
+        }
+        if (grid[y][x + 1]) {
+            returner.push(grid[y][x + 1]);
+        }
+        return returner;
+    }
+    function taxicabDistance(pos1, pos2) {
+        let [x1, y1] = pos1.split(",").map(z => parseInt(z));
+        let [x2, y2] = pos2.split(",").map(z => parseInt(z));
+        let dx = Math.abs(x1 - x2);
+        let dy = Math.abs(y1 - y2);
+        return dx + dy;
+    }
+    function traverseNode(node, prop = "cost") {
+        let arr = [];
+        if (node.parent !== null) {
+            arr = [...traverseNode(node.parent), node[prop]];
+        }
+        else {
+            arr = [node[prop]];
+        }
+        return arr;
+    }
+    function search(grid, startPos, endPos, openHeap) {
+        let startNode = grid[startPos[1]][startPos[0]];
+        let endNode = grid[endPos[1]][endPos[0]];
+        startNode.g = startNode.cost;
+        startNode.h = taxicabDistance(startNode.pos, endNode.pos);
+        startNode.f = startNode.g + startNode.h;
+        openHeap.insert(startNode);
+        while (openHeap.size) {
+            let currentNode = openHeap.pop();
+            if (currentNode.pos == endNode.pos) {
+                let n = traverseNode(currentNode, "pos");
+                return [n, currentNode.f];
+            }
+            let neighbors = findNeighbors(grid, currentNode);
+            currentNode.closed = true;
+            for (let i in neighbors) {
+                let neighbor = neighbors[i];
+                if (neighbor.closed || neighbor.cost == -1 || currentNode.g == undefined) {
+                    continue;
+                }
+                let gScore = currentNode.g + neighbor.cost;
+                let minG = false;
+                let notVis = false;
+                if (!neighbor.visited) {
+                    minG = true;
+                    neighbor.visited = true;
+                    notVis = true;
+                    neighbor.h = taxicabDistance(neighbor.pos, endNode.pos);
+                }
+                else if (neighbor.g && gScore < neighbor.g) {
+                    minG = true;
+                }
+                if (minG && neighbor.h) {
+                    neighbor.parent = currentNode;
+                    neighbor.g = gScore;
+                    neighbor.f = neighbor.h + neighbor.g;
+                    if (notVis) {
+                        openHeap.insert(neighbor);
+                    }
+                }
             }
         }
-
+        return [];
     }
-
-  }
-
-  return [];
+    function run(grid, startPos = [0, 0], endPos = [grid.length - 1, grid[0].length - 1]) {
+        let redraw = init(grid);
+        let openHeap = new Heap([], "min", "f");
+        let [path, cost] = search(redraw, startPos, endPos, openHeap);
+        return [path, cost];
+    }
 }
-console.time();
-console.log(astar(input, [0,0], [input[0].length - 1, input.length - 1]));
-console.timeEnd();
-
-console.time();
-console.log(astar(input2, [0,0], [input2[0].length - 1, input2.length - 1]));
-console.timeEnd();
-
-console.time();
-console.log(astar(input3, [0,0], [input3[0].length - 1, input3.length - 1]));
-console.timeEnd();
