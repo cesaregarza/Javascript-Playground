@@ -1,3 +1,13 @@
+const generateNDimensionalSquareGrid = (n, l) => {
+    if (n){
+      return Array.from({length: l}, () => generateNDimensionalSquareGrid(n - 1, l));
+    } else {
+      return Math.floor(Math.random() * 100000);
+    }
+  };
+  
+let input3 = generateNDimensionalSquareGrid(2, 100);
+
 const input = [
   [12, 30, 17, 84, 4],
   [98, 68, 7, 71, 9],
@@ -122,11 +132,100 @@ class Node {
   }
 }
 
+class Heap{
+    constructor(arr, order){
+        this._arr = arr;
+        this._order = order;
+    }
+
+    pop(){
+        let l = this._arr.length - 1;
+        [this._arr[0], this._arr[l]] = [this._arr[l], this._arr[0]];
+        let p = this._arr.pop();
+        this._heapify(0);
+        return p;
+    }
+
+    _heapify(startIndex){
+        if (startIndex > this._arr.length) return;
+
+        let child1 = startIndex * 2 + 1;
+        let child2 = startIndex * 2 + 2;
+        let child1Exists = (this._arr[child1] != undefined);
+        let child2Exists = (this._arr[child2] != undefined);
+
+        let finalIndex = -1;
+
+        if (child1Exists && !this._compare(this._arr[startIndex], this._arr[child1])){
+            
+            if (child2Exists && this._compare(this._arr[child1], this._arr[child2])){
+                
+                [this._arr[startIndex], this._arr[child1]] = [this._arr[child1], this._arr[startIndex]];
+                finalIndex = child1;
+
+            } else if (child2Exists){
+                
+                [this._arr[startIndex], this._arr[child2]] = [this._arr[child2], this._arr[startIndex]];
+                finalIndex = child2;
+            } else {
+                [this._arr[startIndex], this._arr[child1]] = [this._arr[child1], this._arr[startIndex]];
+                finalIndex = child1;
+            }
+
+        } else if (child2Exists && !this._compare(this._arr[startIndex], this._arr[child2])){
+            
+            [this._arr[startIndex], this._arr[child2]] = [this._arr[child2], this._arr[startIndex]];
+            finalIndex = child2;
+
+        } else return;
+
+        if (finalIndex != -1){
+            this._heapify(finalIndex);
+        }
+    }
+
+    _compare(a, b, equals) {
+        if (!equals) {
+          if (this._order == "max") {
+            return (a.f > b.f);
+          } else {
+            return (a.f < b.f);
+          }
+        } else {
+          if (this._order == "max") {
+            return (a.f >= b.f);
+          } else {
+            return (a.f <= b.f);
+          }
+        }
+      }
+
+    insert(a){
+        this._arr.push(a);
+        this._bubbleUp(this._arr.length - 1);
+    }
+
+    _bubbleUp(startIndex){
+        if (startIndex === 0) return;
+        let si = startIndex + 1;
+        let parentIndex = (si - si%2)/2 - 1;
+        if (this._compare(this._arr[startIndex], this._arr[parentIndex], 1)){
+            [this._arr[startIndex], this._arr[parentIndex]] = [this._arr[parentIndex], this._arr[startIndex]];
+        } else return;
+
+        this._bubbleUp(parentIndex);
+    }
+
+    get size(){
+        return this._arr.length;
+    }
+}
+
 //Finds neighbors on the grid
 //TODO: Update to N-Dimensions
 //PARAM: grid[][];
 //PARAM: node{Node};
-//RETURN: Array[]
+//RETURN: Array[{Node},{Node},...]
 const findNeighbors = (grid, node) => {
   let s = node.pos;
   let [x, y] = s.split(",").map(z => parseInt(z));
@@ -150,7 +249,7 @@ const findNeighbors = (grid, node) => {
 //Returns the taxicab distance.
 // PARAM: Pos1: String "x,y"
 // PARAM: pos2: String "x,y"
-// RETURN: Sum of X and Y distance
+// RETURN: Number {Sum of X and Y distance}
 function taxicabDistance(pos1, pos2){
     let [x1,y1] = pos1.split(',');
     let [x2,y2] = pos2.split(',');
@@ -172,13 +271,13 @@ const traverseNode = (node) => {
     return arr;
 };
 
-function week2(grid, startPos, endPos) {
+function astar(grid, startPos, endPos) {
   //Iterate through the grid to create a grid of nodes
   grid = grid.map((x, i) => x.map((y, j) => new Node(y, j, i)));
 
   //determine the start and end nodes
-  let openList = [];
-  let openListPos = [];
+  let openHeap = new Heap([], "min");
+
   let startNode = grid[startPos[0]][startPos[1]];
   let endNode = grid[endPos[0]][endPos[1]];
 
@@ -188,22 +287,15 @@ function week2(grid, startPos, endPos) {
   startNode.f = startNode.g + startNode.h;
 
   //Push the startNode to the openList to begin
-  openList.push(startNode);
-  openListPos.push(startNode.pos);
+  openHeap.insert(startNode);
   //while there remains stuff in the openList
-  while (openList.length) {
-    let lowIndex = 0;
+  while (openHeap.size) {
 
-    //Find the smallest f value in the openList
-    for (let i in openList) {
-      if (openList[i].f < openList[lowIndex].f) lowIndex = i;
-    }
-
-    let currentNode = openList[lowIndex];
+    let currentNode = openHeap.pop();
 
     //If the currentNode IS the endNode, end it
     if (currentNode.pos == endNode.pos) {
-        // let n = traverseNode(currentNode);
+        //let n = traverseNode(currentNode);
         let n = 0;
       return [n, currentNode.f];
     }
@@ -212,7 +304,6 @@ function week2(grid, startPos, endPos) {
     let neighbors = findNeighbors(grid, currentNode);
 
     //Remove lowIndex from the openList and mark it closed
-    openList.splice(lowIndex,1);
     currentNode.closed = true;
 
     //iterate through each of the neighbors
@@ -227,13 +318,13 @@ function week2(grid, startPos, endPos) {
         //Calculate current gScore
         let gScore = currentNode.g + neighbor.cost;
         let minG = false;
+        let notVis = false;
 
         if (!neighbor.visited){
             minG = true;
             neighbor.visited = true;
+            notVis = true;
             neighbor.h = taxicabDistance(neighbor.pos, endNode.pos);
-            openList.push(neighbor);
-            openListPos.push(neighbor.pos);
         } else if (gScore < neighbor.g){
             minG = true;
         }
@@ -242,6 +333,9 @@ function week2(grid, startPos, endPos) {
             neighbor.parent = currentNode;
             neighbor.g = gScore;
             neighbor.f = neighbor.h + neighbor.g;
+            if (notVis){
+            openHeap.insert(neighbor);
+            }
         }
 
     }
@@ -251,9 +345,13 @@ function week2(grid, startPos, endPos) {
   return [];
 }
 console.time();
-console.log(week2(input, [0,0], [input[0].length - 1, input.length - 1]));
+console.log(astar(input, [0,0], [input[0].length - 1, input.length - 1]));
 console.timeEnd();
 
 console.time();
-console.log(week2(input2, [0,0], [input2[0].length - 1, input.length - 1]));
+console.log(astar(input2, [0,0], [input2[0].length - 1, input2.length - 1]));
+console.timeEnd();
+
+console.time();
+console.log(astar(input3, [0,0], [input3[0].length - 1, input3.length - 1]));
 console.timeEnd();
