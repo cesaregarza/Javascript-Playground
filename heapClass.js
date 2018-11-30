@@ -1,4 +1,4 @@
-export class Heap {
+class Heap {
     constructor(arr, order, prop = null) {
         this._arr = arr;
         this._order = order;
@@ -14,7 +14,7 @@ export class Heap {
         this._heapify(0);
         return p;
     }
-    _heapify(startIndex) {
+    _heapify(startIndex = 0) {
         if (startIndex > this._arr.length)
             return;
         let child1 = startIndex * 2 + 1;
@@ -100,16 +100,60 @@ export class Heap {
             return;
         this._bubbleUp(parentIndex);
     }
-    isValidHeap(startIndex) {
+    isValidHeap(startIndex = 0) {
         if (startIndex >= this._arr.length)
             return [true];
         let child1 = startIndex * 2 + 1;
         let child2 = child1 + 1;
         let arr = [this._arr[child1] === undefined || this._compare(this._arr[startIndex], this._arr[child1], 1), this.isValidHeap(child1)];
         arr.push(this.isValidHeap(child2));
-        return arr.reduce((a, b) => a && b, true);
+        let acc = true;
+        for (let i in arr){
+            acc = acc && arr[i];
+        }
+
+        if (acc){
+            acc = true;
+        }
+        return acc;
     }
     get size() {
         return this._arr.length;
     }
+    sort() {
+        let originalArr = this._arr;
+        this._initHeapify();
+        let sortedArr = [];
+        while (this._arr.length) {
+            sortedArr.push(this.pop());
+        }
+        this._arr = originalArr;
+        return sortedArr;
+    }
+    _initHeapify() {
+        let tempArr = this._arr;
+        this._arr = [];
+        while (tempArr.length) {
+            let p = tempArr.pop();
+            if (p === undefined) {
+                throw `undefined`;
+            }
+            this.insert(p);
+        }
+        return;
+    }
 }
+
+module.exports = Heap;
+
+// let h = new Heap([], 'min');
+// let p = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+// let g = new Heap([...p], 'max');
+
+// for (let i in p){
+//     h.insert(p[i]);
+// }
+
+// console.log(h);
+// console.log(h.isValidHeap());
+// console.log(g.isValidHeap());

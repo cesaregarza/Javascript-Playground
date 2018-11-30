@@ -21,7 +21,7 @@ export class Heap {
     return p;
   }
 
-  private _heapify(startIndex: number) {
+  private _heapify(startIndex: number = 0) {
     if (startIndex > this._arr.length) return;
 
     let child1 = startIndex * 2 + 1;
@@ -107,7 +107,7 @@ export class Heap {
     this._bubbleUp(parentIndex);
   }
 
-  isValidHeap(startIndex: number) {
+  isValidHeap(startIndex: number=0) {
     if (startIndex >= this._arr.length) return [true];
     let child1 = startIndex * 2 + 1;
     let child2 = child1 + 1;
@@ -118,5 +118,31 @@ export class Heap {
 
   get size(){
     return this._arr.length;
+  }
+
+  sort() {
+    this._initHeapify();
+    let sortedArr: number[] = [];
+
+    while (this._arr.length){
+      sortedArr.push(this.pop());
+    }
+    this._arr = sortedArr;
+    return;
+  }
+
+  private _initHeapify(){
+    let tempArr: number[] = this._arr;
+    this._arr = [];
+    while(tempArr.length){
+      let p = tempArr.pop();
+
+      if (p === undefined){
+        throw `undefined`;
+      }
+
+      this.insert(p);
+    }
+    return;
   }
 }
