@@ -30,7 +30,7 @@ class Series {
    */
   findDegree(arr, deg = 1) {
     let arr2 = [];
-    if (arr[0] == undefined) return false;
+    if (arr[0] == undefined || arr.length == 1) return false;
     let acc = true;
     for (let i = 1; i < arr.length; i++) {
       let g = arr[i].sub(arr[i - 1]);
@@ -46,6 +46,7 @@ class Series {
   /**
    * Generates an array of factorials up to n
    * @param {number} n number we want to generate our factorials up to
+   * @returns {number[]} returns array of factorials
    */
   generateFactorials(n) {
     let arr = [1];
@@ -71,7 +72,7 @@ class Series {
   }
 
   /**
-   * Horner's Method. Finds a_0+a_1*x+a_2*x^2... through recursion.
+   * Horner's Method. Finds a_0 + a_1*x + a_2*x^2 + ... +a_n * x^n  through recursion.
    * @param {Fraction[]} poly Polynomial input
    * @param {number} n Number around which to generate the series
    * @returns {Fraction} Returns Series
@@ -93,6 +94,7 @@ class Series {
     let ret = "";
     let l = polyArray.length;
     for (let i in polyArray) {
+        if (polyArray[i].n == 0) continue;
         if (polyArray[i].s == -1){
             ret+=`-`;
         }
@@ -197,10 +199,18 @@ class Series {
 
 
 let x = [4, -3, 4, -2, 5, 1];
-let arr = [24, 76, 160, 276];
+let arr = [1, 24, 76, 160, 276];
 let arr2 = [24, 100, 260, 536, 960];
+let arr3 = [0, 45, 574, 3009, 10356, 27805, 63330];
 let s = new Series(arr, 'series');
+let r = new Series([24, 76, 160, 276], 'series');
+let t = new Series(arr2, 'series');
 
 s.findPolynomial();
 s.printPolynomial();
+r.findPolynomial();
+r.printPolynomial();
 s.findSummationPoly();
+r.findSummationPoly();
+t.findPolynomial();
+t.printPolynomial();
