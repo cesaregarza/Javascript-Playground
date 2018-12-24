@@ -324,6 +324,116 @@ class RubikCube {
             return list.concat(g);
         }
     }
+
+    rotateCube(input){
+        let re = /^(?<type>[xyz]{1})(?<direction>['2]?)/g;
+        
+        let arr = re.exec(input);
+        if (!arr) throw 'invalid rotation';
+
+        let [clockwise, twice] = [true, false];
+
+        if (arr.groups.direction == "'"){
+            clockwise = false;
+        }
+
+        if (arr.groups.direction == '2'){
+            twice = true;
+        }
+        let k = [...this._faces];
+        
+        if (arr.groups.type == 'x'){
+            this.rotateFace(2,!clockwise, twice);
+            this.rotateFace(5, clockwise, twice);
+            if (!twice){
+                if (!clockwise){
+                    this._faces[0] = k[4];
+                    this.rotateFace(0, true, true);
+                    this._faces[1] = k[0];
+                    this._faces[3] = k[1];
+                    this._faces[4] = k[3];
+                    this.rotateFace(4, true, true);
+                } else {
+                    this._faces[0] = k[1];
+                    this._faces[1] = k[3];
+                    this._faces[3] = k[4];
+                    this.rotateFace(3, true, true);
+                    this._faces[4] = k[0];
+                    this.rotateFace(4, true, true);
+                }
+            } else {
+                this._faces[0] = k[3];
+                this._faces[1] = k[4];
+                this.rotateFace(1, true, true);
+                this._faces[3] = k[0];
+                this._faces[4] = k[1];
+                this.rotateFace(4, true, true);
+            }
+        } else if (arr.groups.type == 'y'){
+            this.rotateFace(0, clockwise, twice);
+            this.rotateFace(3, !clockwise, twice);
+            if (!twice){
+                if (clockwise){
+                    this._faces[1] = k[5];
+                    this._faces[2] = k[1];
+                    this._faces[4] = k[2];
+                    this._faces[5] = k[4];
+                } else {
+                    this._faces[1] = k[2];
+                    this._faces[2] = k[4];
+                    this._faces[4] = k[5];
+                    this._faces[5] = k[1];
+                }
+            } else {
+                this._faces[1] = k[4];
+                this._faces[2] = k[5];
+                this._faces[4] = k[1];
+                this._faces[5] = k[2];
+            }
+        } else {
+            this.rotateFace(1, clockwise, twice);
+            this.rotateFace(4, !clockwise, twice);
+            if (!twice){
+                if(!clockwise){
+                    this._faces[0] = k[5];
+                    this.rotateFace(0, false, false);
+                    this._faces[2] = k[0];
+                    this.rotateFace(2, false, false);
+                    this._faces[3] = k[2];
+                    this.rotateFace(3, false, false);
+                    this._faces[5] = k[3];
+                    this.rotateFace(5, false, false);
+                } else {
+                    this.faces[0] = k[2];
+                    this.rotateFace(0, true, false);
+                    this.faces[2] = k[3];
+                    this.rotateFace(2, true, false);
+                    this._faces[3] = k[5];
+                    this.rotateFace(3, true, false);
+                    this._faces[5] = k[0];
+                    this.rotateFace(5, true, false);
+                }
+            } else {
+                this._faces[0] = k[3];
+                this.rotateFace(0, true, true);
+                this._faces[2] = k[5];
+                this.rotateFace(2, true, true);
+                this._faces[3] = k[0];
+                this.rotateFace(3, true, true);
+                this._faces[5] = k[2];
+                this.rotateFace(5, true, true);
+            }
+        }
+
+        
+    }
+
+    get faces(){
+        return this._faces;
+    }
+    get size(){
+        return this._size;
+    }
 }
 
 module.exports = RubikCube;
