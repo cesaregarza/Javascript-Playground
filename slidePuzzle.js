@@ -1,16 +1,24 @@
 const Heap = require("./heapClassSlide");
 
 class SlidePuzzle{
+    /**
+     * Constructor. Creates the puzzle instance
+     * @param {Array | number} input Takes an array and generates the puzzle, or takes a number and generates a puzzle of size N x N
+     * @param {boolean} skipVerification Default to false, specifies to skip verification if the user wants to for whatever reason
+     */
     constructor(input, skipVerification = false){
         //Generate sliding puzzle as an array
         if (Array.isArray(input)){
+            //This will validate the puzzle if skipVerification is not specified, which only happens if the user specifies it.
             if (!skipVerification){
                 let validState = this._validatePuzzle(input);
                 if (!validState) throw "invalid state";
             }
 
+            //Establish the array that will hold the puzzle itself
             this._puzzle = input;
 
+            //Find the index of the space
             for (let i in input){
                 if (input[i] == 0){
                     this._blankIndex = parseInt(i);
@@ -18,24 +26,43 @@ class SlidePuzzle{
                 }
             }
 
+            //We specify the size of the array for later use. This is extraordinarily useful later on.
             this._size = this._sqrt(input.length);
+            //We now calculate the valid moves that are possible from the puzzle's current state.
             this.validMoves();
         } else if (typeof input == "number"){
+            //If the user doesn't specify an array, we will generate a new puzzle in order whose size is N x N
             let k = input ** 2;
+            //We create the array from 1 to 16.
             this._puzzle = Array.from({length: k}, (x, i) => i+1);
+            //We set the index of the blank to be at the end
             this._blankIndex = k - 1;
+            //We overwrite the 16 with a 0, indicating the blank
             this._puzzle[this._blankIndex] = 0;
+            //We now store the size of the puzzle
             this._size = input;
+            //We calculate the valid moves available from here
             this.validMoves();
         } else {
+            //If the input is not valid, throw an error at the user.
             throw "invalid input";
         }
     }
 
+    /**
+     * Logical XOR. Generally useful, cleans up code when referenced.
+     * @param {boolean} a First boolean
+     * @param {boolean} b Second boolean
+     * @returns {boolean} returns the XOR of A and B.
+     */
     _XOR(a, b){
         return ((a && !b) || (!a && b));
     }
 
+    /**
+     * ValidatePuzzle. Validates the input array as a valid sliding puzzle that's solvable. Easy enough.
+     * @param {Array} input The array we're trying to validate
+     */
     _validatePuzzle(input){
         
         //This block is to validate the size is a perfect square
@@ -79,18 +106,37 @@ class SlidePuzzle{
         }
     }
 
+    /**
+     * Sqrt, given an input, finds the square root. Also tries to correct for floating point errors in the process to return an integer
+     * @param {number} input number trying to find the square root of
+     */
     _sqrt(input){
+        //Find the square root
         let sqrt = Math.sqrt(input);
+        //Find any decimal remainder
         let q = Math.abs(sqrt - Math.floor(sqrt));
         if (q >= 0.0001 ) throw "Invalid size";
+        //Lop off the remainder
         sqrt -= q;
+        //Return the integer value
         return sqrt;
     }
 
+    /**
+     * Swaps two items in any given array. Made as a separate function for readability of code
+     * @param {Array} arr array whose items you wish to swap
+     * @param {number} a index of first item in the swap
+     * @param {number} b index of second item in the swap
+     */
     _swapItems(arr, a, b){
         [arr[a], arr[b]] = [arr[b], arr[a]];
     }
 
+    /**
+     * Inversion Count. Given an array, counts the number of times a number A appears before a number B, given that A > B.
+     * @param {Array} input Array of puzzle you want to count inversions for.
+     * @returns {number} returns the number of inversions
+     */
     _inversionCount(input = this._puzzle){
         //We initialize an empty array called appeared that will hold values that have already appeared
         let appeared = [];
@@ -110,20 +156,37 @@ class SlidePuzzle{
         return inversions;
     }
 
+    /**
+     * Slide Right. Slides the number on the right of the blank space into the blank space. NOTE: DOES NOT SLIDE THE BLANK TO THE RIGHT!!
+     * @param {Array} input Input array of puzzle state
+     * @param {number} blankIndex Index of the blank in the above puzzle state
+     * @param {Array} validMoves Array enumerating valid moves the puzzle state can do
+     */
     slideRight(input, blankIndex = this._blankIndex, validMoves = this._validMovesArr){
+        //Dummy variable
         let q = false;
+        //Creates a copy of the blank Index fed into it. Useful to prevent mutating the puzzle state when considering potential states
         let blankIndexCopy = blankIndex;
+        //If no input was given, set the dummy variable to true and set the input as the puzzle's current state
         if (!input){
             q = true;
             input = this._puzzle;
         }
+        //If the validMoves include 'Right', then go ahead
         if (validMoves.includes('R')){
+            //Swap the item to the right of the blank and the blank
+            //CAUTION: MUTATES INPUT ARRAY, FEED A SHALLOW COPY IF THIS IS NOT DESIRED BEHAVIOR
             this._swapItems(input, blankIndex, blankIndex - 1);
+            //If the dummy variable is true, this means an input was given.
             if (q){
+                //reassign blankIndex to its new position
                 this._blankIndex--;
+                //recalculate the list of valid moves the puzzle's new state an take.
                 this.validMoves();
             } else {
+                //If an input was fed, alter the copy of the blankIndex
                 blankIndexCopy--;
+                //Return both the blankIndex and the mutated, new array state
                 return [blankIndexCopy, input];
             }
         } else {
@@ -131,6 +194,7 @@ class SlidePuzzle{
         }
     }
 
+    //See slideRight
     slideLeft(input, blankIndex = this._blankIndex, validMoves = this._validMovesArr){
         let q = false;
         let blankIndexCopy = blankIndex;
@@ -152,6 +216,7 @@ class SlidePuzzle{
         }
     }
 
+    //see SlideRight
     slideUp(input, blankIndex = this._blankIndex, validMoves = this._validMovesArr){
         let q = false;
         let blankIndexCopy = blankIndex;
@@ -173,6 +238,7 @@ class SlidePuzzle{
         }
     }
 
+    //see slideRight
     slideDown(input, blankIndex = this._blankIndex, validMoves = this._validMovesArr){
         let q = false;
         let blankIndexCopy = blankIndex;
@@ -194,28 +260,49 @@ class SlidePuzzle{
         }
     }
 
+    /**
+     * ValidMoves, calculates and enumerates the list of valid moves available from the given blank Index
+     * @param {number} input Input blank index
+     */
     validMoves(input){
+        //Dummy variable
         let q = false;
+        //If the input is falsey, and that input is NOT zero
         if (!input && input !== 0){
+            //set dummy variable to true and set input as the blank index of the puzzle state
             q = true;
             input = this._blankIndex;
         }
+        //Create an empty array that will hold the available moves
         let moves = [];
+        //Find the column the blank is located in
         let blankRowPos = input % this._size;
+        //Find the row the blank is located in
         let blankRow = Math.floor(input / this._size);
 
+        //If the blank is not located in the first column, right is a possible move
         if (blankRowPos) moves.push('R');
+        //If the blank is not located in the last column, left is a possible move
         if (blankRowPos != (this._size - 1)) moves.push('L');
+        //If the blank is not located in the last row, up is a possible move
         if (blankRow != this._size - 1) moves.push('U');
+        //If the blank is not located in the first row, down is a possible move
         if (blankRow) moves.push('D');
 
+        //If the dummy variable is true, we overwrite the valid moves Array of our puzzle state to the output of the function
         if (q){
             this._validMovesArr = moves;
         } else {
+            //otherwise return the list of moves
             return moves;
         }
     }
 
+    /**
+     * Shuffle. Shuffles the puzzle state using random valid moves
+     * @param {number} moveLimit Number of moves you want to take in the shuffle
+     * @param {number} variance Variance on the number of moves in the shuffle. Defaults to 30%
+     */
     shuffle(moveLimit = 60, variance = 0.3){
         if (variance > 0.6) variance = 0.6;
         if (variance < 0) variance = 0;
@@ -235,34 +322,58 @@ class SlidePuzzle{
         }
     }
 
+    /**
+     * findH, the Heuristic Function. The engine that powers IDA*, this creates an estimate of how many moves to completion.
+     * @param {Array} input The boardstate we're considering
+     * @returns {number} Returns the estimate of moves required to finish the current board.
+     */
     findH(input = this._puzzle){
+        //accumulator. This variable will collect distance esimation through the use of taxicab distance, Manhattan distance, or most accurately: the L1 norm.
         let acc = 0;
         for (let i = 0; i < input.length; i++){
+            //for ease of reference, we define the block we're looking at as a variable
             let curr = input[i];
+            //Only execute if the block is NOT blank
             if (curr != 0){
+                //We find the intended row and column and the actual row and column based on their values
                 let intendedRow = Math.floor((curr - 1) / this._size);
                 let currentRow = Math.floor(i / this._size);
                 let intendedCol = (curr - 1) % this._size;
                 let currentCol = i % this._size;
 
+                //We calculate the distance the block is from its intended row, and the distance from its intended column
                 let rowDist = Math.abs(intendedRow - currentRow);
                 let colDist = Math.abs(intendedCol - currentCol);
 
+                //We add this difference to the accumulator
                 acc += rowDist + colDist;
 
+                //Now we're going to add linear collisions to make our estimate much closer to the reality. This means that if the block is in its intended column or row, we're going to check if the numbers to the left/above are larger than it, or numbers to the right/below are smaller than it. If so, there's a linear collision, and we'll add 2 to the accumulator for each collision.
+
+                //We begin this process by generating an array numbered 0 to the size of the puzzle.
                 let arr = Array.from({length: this._size}, (x, i) => i);
 
+                //If the block is in its intended row
                 if (!rowDist){
+                    //Iterate over the array we generated earlier
                     for (let j in arr){
+                        //For ease of reference, this is our test column. Technically could just be replaced with j.
                         let testCol = arr[j];
+                        //Calculate value K. This is simply the index of the test block within the same row we're comparing against
                         let k = currentRow * this._size + testCol;
+                        //We calculate the intended test row of the test block.
                         let intendTestRow = Math.floor((input[k] - 1)/this._size);
+                        //If the row we're on ISN'T the intended test row, we skip calculating.
                         if (currentRow != intendTestRow) continue;
+                        //If the column we're testing is to the left of the column we're on
                         if (testCol < currentCol){
+                            //We test if the block located there is larger. If so, add two.
                             if (input[k] > curr){
                                 acc += 2;
                             }
                         } else {
+                            //If the column we're testing is to the right of the column we're on
+                            //We test if the block located there is smaller and is NOT the blank.
                             if (input[k] < curr && input[k] !== 0){
                                 acc +=2;
                             }
@@ -270,6 +381,7 @@ class SlidePuzzle{
                     }
                 }
 
+                //We do the exact same as above but for the blocks found in the column
                 if (!colDist){
                     for (let j in arr){
                         let testRow = arr[j];
@@ -290,16 +402,40 @@ class SlidePuzzle{
             }
         }
         
+        //We have a secondary heuristic, inversion distance, by Ken'ichiro Takahashi. We simply count inversions in vertical moves as well as inversions in horizontal moves.
+        //First we count vertical inversions.
         let inversions = this._inversionCount(input);
 
+        //We divide the number of inversions by one less the size of the puzzle and add the remainder
         let vert = Math.floor(inversions / (this._size - 1)) + inversions % (this._size - 1);
+
+        //To calculate the horizontal inversions we must reassign the puzle new values. So the puzzle began as such:
+        //    -----------------------------
+        //    |  1   |  2   |  3   |  4   |
+        //    |  5   |  6   |  7   |  8   |
+        //    |  9   |  10  |  11  |  12  |
+        //    |  13  |  14  |  15  |  0   |
+        //    -----------------------------
+        
+        //Which we convert to
+        //    -----------------------------
+        //    |  1   |  5   |  9   |  13  |
+        //    |  2   |  6   |  10  |  14  |
+        //    |  3   |  7   |  11  |  15  |
+        //    |  4   |  8   |  12  |  0   |
+        //    -----------------------------
+
+        //We associate the values of the first with that of the second and THEN count inversions.
+        //To do that, we create an ideal horizontal board TODO: memoize this bitch
         let idealHor = [];
         for (let i = 0; i < input.length; i++){
             let n = this._size * (i % this._size) + Math.floor(i / this._size);
             idealHor[n] = i + 1;
         }
+        //After creating our board, we just set the 16 to zero for our blank
         idealHor[input.length - 1] = 0;
 
+        //We use this to reassign values to our board to a transposed version fo the board
         let horInput = [];
 
         for (let i = 0; i < input.length; i++){
@@ -307,44 +443,58 @@ class SlidePuzzle{
             horInput.push(idealHor[n]);
         }
 
+        //We now use this transposed board and count inversions the same way as last time
         let horInversions = this._inversionCount(horInput);
         let hor = Math.floor(horInversions / (this._size - 1)) + horInversions % (this._size - 1);
 
+        //the invert distance is the sum of both the vertical and horizontal inversions
         let invertDistance = vert + hor;
 
-
+        //We take the larger of the two and use this as our heuristic.
         return acc > invertDistance ? acc : invertDistance;
     }
 
+    //Checks if the board is solved. Obsolete, as the heuristic function should return zero for a solved board state.
     isSolved(input = this._puzzle){
         return input.reduce((a, b, i) => a && (b == i+1 || b == 0), true);
     }
 
+    //Returns a shallow copy of the board state when invoked
     get puzzle(){
         return [...this._puzzle];
     }
 
+    //returns the f value, which is the sum of the heuristic value of the current boardstate and the amount of moves taken
     get f(){
         return this._f;
     }
 
+    //Solves the puzzle, uses IDA* with a dual-minmax heap. I will explain further on what this means
     solve(){
+        //Establish an h value and set the g value to zero
         this._h = this.findH();
         this._g = 0;
+        //Set the f value
         this._f = this._g + this._h;
 
+        //Create a new dual-minmax heap. It will order the heap by max of g, but when there's ties it will order by the min of f. This allows us to optimize the branches we're exploring first
         let heap = new Heap([], 'max', 'g', 'f');
 
+        //Set the initial maxDepth to 2.
         let maxDepth = 2;
         let i;
+        //We can determine whether it'll take even or odd moves to solve based on the blankIndex. Essentially think of a checkerboard pattern being applied on the boardstate. If the blank begins on a white space and ends on a black space, it will require an odd number of moves to solve. If it starts on a black space and ends on a black space, it will require an even number of moves.
         if (this._size % 2){
             i = this._blankIndex % 2;
         } else {
             i = ((this._blankIndex) % 2 + Math.floor(this._blankIndex / this._size)) % 2;
         }
+        //Because of the above, we can safely increase the max depth by 2 every time
         for (; i < maxDepth; i+=2){
-            console.log(`depth: ${i}`)
+            console.log(`depth: ${i}`);
+            //Run the exploreStates function, which is essentially an implementation of A* that truncuates at a certain depth
             let res = this._exploreStates(i, heap);
+            //If we don't find a solution, repeat with maxdepth +2.
             if (res == false) {
                 maxDepth+=2;
                 continue;
@@ -352,7 +502,14 @@ class SlidePuzzle{
         }
     }
 
+    /**
+     * exploreStates. An implementation of a IDA*. Searches a branch as deep as it can until it reaches a cutoff point as specified by maxDepth, then moves to the next branch. Uses a heap as priorityQueue
+     * @param {number} maxDepth The max depth the function will explore
+     * @param {Heap} heap The heap we're going to use
+     * @returns {Object | boolean} If the function finds a solution, returns it. If not, returns False.
+     */
     _exploreStates(maxDepth, heap){
+        //Our initial state is just the original state.
         let initState = {
             state: this.puzzle,
             g: 0,
@@ -363,23 +520,28 @@ class SlidePuzzle{
         };
         initState.f = initState.g + initState.h;
 
+        //Insert this into our heap
         heap.insert(initState);
 
+        //While our heap is not empty
         while(heap.size){
+            //Pop out the top value of the heap, this is our currentState.
             let currentState = heap.pop();
             
+            //If the current amount of moves plus the estimated number of moves is greater than the maxDepth, it is not worth further exploring this branch and we can close it.
             if (currentState.h + currentState.g > maxDepth) continue;
+            //Calculate the validMoves the currentState can do.
             currentState.validMoves = this.validMoves(currentState.blankIndex);
 
-            let r = this.isSolved(currentState.state);
-            if (r) return currentState;
+            //If the puzzle is solved, return the solution
+            if (currentState.h === 0) return currentState;
 
-            if (currentState.g == maxDepth) continue;
-
-
+            //If the next valid move is a Right move
             if (currentState.validMoves.includes('R')){
+                //Execute the move to the right
                 let [potentialBlank, potentialMove] = this.slideRight([...currentState.state], currentState.blankIndex, [...currentState.validMoves]);
 
+                //Create a new object with the potential new state
                 let potentialState = {
                     state: potentialMove,
                     g: currentState.g + 1,
@@ -389,6 +551,7 @@ class SlidePuzzle{
                 };
                 potentialState.f = potentialState.g + potentialState.h;
 
+                //Insert this into the heap, which will automatially sort it.
                 heap.insert(potentialState);
             }
 
@@ -437,6 +600,7 @@ class SlidePuzzle{
                 heap.insert(potentialState);
             }
         }
+        //If the heap is empty, return false.
         return false;
     }
 }
@@ -448,9 +612,11 @@ let invalidBoard = [3, 9, 1, 15, 14, 11, 4, 6, 13, 0, 10, 12, 2, 7, 8, 5];
 let FourteenMove = [ 1, 2, 3, 4, 5, 11, 10, 7, 9, 6, 12, 15, 13, 14, 8, 0 ];
 let Eight26Move = [ 2, 4, 0, 3, 6, 7, 5, 8, 1 ];
 let LinearCollision = [1, 2, 3, 0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 4];
-let q = new SlidePuzzle(FourteenMove);
+let EightyMove = [15, 14, 8, 12, 10, 11, 9, 13, 2, 6, 5, 1, 3, 7, 4, 0];
+let FourtyNineMove = [ 12, 2, 11, 4, 3, 10, 7, 6, 8, 13, 14, 0, 9, 1, 5, 15 ];
+let q = new SlidePuzzle([5, 1, 7, 3, 9, 2, 11, 4, 13, 6, 15, 8, 0, 10, 1, 12]);
 // console.log(q);
-// q.shuffle(100);
+// q.shuffle(200);
 console.log(q);
 console.log(q.findH());
 let hrStart = process.hrtime();
