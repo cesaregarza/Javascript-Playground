@@ -13,6 +13,5 @@ let y = (input) => {
 
 for (var i = 1; i < 1000; i++){
     if (x(y(i)) != i) break;
-    if (i%10 == 0) console.log(i);
 }
 console.log(i);

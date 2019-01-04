@@ -325,6 +325,10 @@ class RubikCube {
         }
     }
 
+    /**
+     * Rotate Cube. Rotates entire cube alongside a given axis.
+     * @param {string} input Axis about which to rotate. Valid inputs: x, y, z, x', x2, etc.
+     */
     rotateCube(input){
         let re = /^(?<type>[xyz]{1})(?<direction>['2]?)/g;
         
@@ -433,6 +437,10 @@ class RubikCube {
     }
     get size(){
         return this._size;
+    }
+
+    findH(){
+        
     }
 }
 

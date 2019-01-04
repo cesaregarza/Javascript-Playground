@@ -469,7 +469,9 @@ class SlidePuzzle{
         return this._f;
     }
 
-    //Solves the puzzle, uses IDA* with a dual-minmax heap. I will explain further on what this means
+    /**
+     * Solves the puzzle, uses IDA* with a dual-minmax heap. I will explain further on what this means
+     */
     solve(){
         //Establish an h value and set the g value to zero
         this._h = this.findH();
@@ -483,6 +485,7 @@ class SlidePuzzle{
         //Set the initial maxDepth to 2.
         let maxDepth = 2;
         let i;
+        let nodes = 0;
         //We can determine whether it'll take even or odd moves to solve based on the blankIndex. Essentially think of a checkerboard pattern being applied on the boardstate. If the blank begins on a white space and ends on a black space, it will require an odd number of moves to solve. If it starts on a black space and ends on a black space, it will require an even number of moves.
         if (this._size % 2){
             i = this._blankIndex % 2;
@@ -494,11 +497,15 @@ class SlidePuzzle{
             console.log(`depth: ${i}`);
             //Run the exploreStates function, which is essentially an implementation of A* that truncuates at a certain depth
             let res = this._exploreStates(i, heap);
+            nodes += res[1];
             //If we don't find a solution, repeat with maxdepth +2.
-            if (res == false) {
+            if (res[0] == false) {
                 maxDepth+=2;
                 continue;
-            } else return res;
+            } else {
+                console.log(`nodes explored: ${nodes}`);
+                return res[0];
+            }
         }
     }
 
@@ -523,18 +530,23 @@ class SlidePuzzle{
         //Insert this into our heap
         heap.insert(initState);
 
+        //We're going to count nodes explored now!
+        let nodes = 0;
+
         //While our heap is not empty
         while(heap.size){
             //Pop out the top value of the heap, this is our currentState.
             let currentState = heap.pop();
             
             //If the current amount of moves plus the estimated number of moves is greater than the maxDepth, it is not worth further exploring this branch and we can close it.
+            nodes++;
             if (currentState.h + currentState.g > maxDepth) continue;
             //Calculate the validMoves the currentState can do.
             currentState.validMoves = this.validMoves(currentState.blankIndex);
 
             //If the puzzle is solved, return the solution
-            if (currentState.h === 0) return currentState;
+            if (currentState.h === 0) return [currentState, nodes];
+
 
             //If the next valid move is a Right move
             if (currentState.validMoves.includes('R')){
@@ -565,7 +577,7 @@ class SlidePuzzle{
                     moves: [...[...currentState.moves],'L'],
                     blankIndex: potentialBlank
                 };
-                potentialState.f = potentialState.g + potentialState.h
+                potentialState.f = potentialState.g + potentialState.h;
 
                 heap.insert(potentialState);
             }
@@ -601,7 +613,7 @@ class SlidePuzzle{
             }
         }
         //If the heap is empty, return false.
-        return false;
+        return [false, nodes];
     }
 }
 
@@ -614,9 +626,9 @@ let Eight26Move = [ 2, 4, 0, 3, 6, 7, 5, 8, 1 ];
 let LinearCollision = [1, 2, 3, 0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 4];
 let EightyMove = [15, 14, 8, 12, 10, 11, 9, 13, 2, 6, 5, 1, 3, 7, 4, 0];
 let FourtyNineMove = [ 12, 2, 11, 4, 3, 10, 7, 6, 8, 13, 14, 0, 9, 1, 5, 15 ];
-let q = new SlidePuzzle([5, 1, 7, 3, 9, 2, 11, 4, 13, 6, 15, 8, 0, 10, 1, 12]);
+let q = new SlidePuzzle(4);
 // console.log(q);
-// q.shuffle(200);
+q.shuffle(200);
 console.log(q);
 console.log(q.findH());
 let hrStart = process.hrtime();
