@@ -327,4 +327,5 @@ export var aStar = {
         let [path, cost] = this.search(redraw, startPos, endPos, openHeap);
         return [path, cost];
     }
+
 };

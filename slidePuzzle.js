@@ -3,10 +3,11 @@ const Heap = require("./heapClassSlide");
 class SlidePuzzle{
     /**
      * Constructor. Creates the puzzle instance
-     * @param {Array | number} input Takes an array and generates the puzzle, or takes a number and generates a puzzle of size N x N
+     * @param {number[] | number} input Takes an array and generates the puzzle, or takes a number and generates a puzzle of size N x N
      * @param {boolean} skipVerification Default to false, specifies to skip verification if the user wants to for whatever reason
      */
     constructor(input, skipVerification = false){
+        
         //Generate sliding puzzle as an array
         if (Array.isArray(input)){
             //This will validate the puzzle if skipVerification is not specified, which only happens if the user specifies it.
@@ -46,6 +47,11 @@ class SlidePuzzle{
         } else {
             //If the input is not valid, throw an error at the user.
             throw "invalid input";
+        }
+        this._idealHor = [];
+        for (let i = 0; i < this._puzzle.length; i++){
+            let n = this._size * (i % this._size) + Math.floor(i / this._size);
+            this._idealHor[n] = i + 1;
         }
     }
 
@@ -137,22 +143,34 @@ class SlidePuzzle{
      * @param {Array} input Array of puzzle you want to count inversions for.
      * @returns {number} returns the number of inversions
      */
-    _inversionCount(input = this._puzzle){
+    _inversionCount(input = this._puzzle, horizontal = false){
         //We initialize an empty array called appeared that will hold values that have already appeared
         let appeared = [];
         let inversions = 0;
         //Main loop
-        for (let i = 0; i < input.length; i++){
-            //For ease of use, j is the current value we're evaluating
-            let j = input[i];
-            if (!j) continue;
-            //Here we use a reduce to go through the appeared array and count every instance where a value A is found before the current value
-            let r = appeared.reduce((a, b) => a += (b > j) ? 1 : 0, 0);
-            inversions += r;
-            //We now add the current value to the appeared array
-            appeared.push(j);
+        if (!horizontal){
+            for (let i = 0; i < input.length; i++){
+                //For ease of use, j is the current value we're evaluating
+                let j = input[i];
+                if (!j) continue;
+                //Here we use a reduce to go through the appeared array and count every instance where a value A is found before the current value
+                let r = appeared.reduce((a, b) => a += (b > j) ? 1 : 0, 0);
+                inversions += r;
+                //We now add the current value to the appeared array
+                appeared.push(j);
+            }
+        } else {
+            for (let i = 0; i < input.length; i++){
+                let n = this._size * (i % this._size) + Math.floor(i / this._size);
+                let j = this._idealHor[input[n] - 1];
+                if (!j) continue;
+                
+                let r = appeared.reduce((a, b) => a += (b > j) ? 1 : 0, 0);
+                inversions += r;
+                appeared.push(j);
+            }
         }
-        //Just a boolean to see if the inversion count is odd
+
         return inversions;
     }
 
@@ -327,87 +345,204 @@ class SlidePuzzle{
      * @param {Array} input The boardstate we're considering
      * @returns {number} Returns the estimate of moves required to finish the current board.
      */
-    findH(input = this._puzzle){
+    findH(input = this._puzzle, blankIndex = false, lastIndex = false, acc = 0, vert = 0, hor = 0){
+        let isVert = (Math.abs(blankIndex - lastIndex) != 1);
         //accumulator. This variable will collect distance esimation through the use of taxicab distance, Manhattan distance, or most accurately: the L1 norm.
-        let acc = 0;
-        for (let i = 0; i < input.length; i++){
-            //for ease of reference, we define the block we're looking at as a variable
-            let curr = input[i];
-            //Only execute if the block is NOT blank
-            if (curr != 0){
-                //We find the intended row and column and the actual row and column based on their values
-                let intendedRow = Math.floor((curr - 1) / this._size);
-                let currentRow = Math.floor(i / this._size);
-                let intendedCol = (curr - 1) % this._size;
-                let currentCol = i % this._size;
+        // acc = 0;
+        if (!acc){
+            for (let i = 0; i < input.length; i++){
+                //for ease of reference, we define the block we're looking at as a variable
+                let curr = input[i];
+                //Only execute if the block is NOT blank
+                if (curr != 0){
+                    //We find the intended row and column and the actual row and column based on their values
+                    let intendedRow = Math.floor((curr - 1) / this._size);
+                    let currentRow = Math.floor(i / this._size);
+                    let intendedCol = (curr - 1) % this._size;
+                    let currentCol = i % this._size;
 
-                //We calculate the distance the block is from its intended row, and the distance from its intended column
-                let rowDist = Math.abs(intendedRow - currentRow);
-                let colDist = Math.abs(intendedCol - currentCol);
+                    //We calculate the distance the block is from its intended row, and the distance from its intended column
+                    let rowDist = Math.abs(intendedRow - currentRow);
+                    let colDist = Math.abs(intendedCol - currentCol);
 
-                //We add this difference to the accumulator
-                acc += rowDist + colDist;
+                    //We add this difference to the accumulator
+                    acc += rowDist + colDist;
 
-                //Now we're going to add linear collisions to make our estimate much closer to the reality. This means that if the block is in its intended column or row, we're going to check if the numbers to the left/above are larger than it, or numbers to the right/below are smaller than it. If so, there's a linear collision, and we'll add 2 to the accumulator for each collision.
+                    //Now we're going to add linear collisions to make our estimate much closer to the reality. This means that if the block is in its intended column or row, we're going to check if the numbers to the left/above are larger than it, or numbers to the right/below are smaller than it. If so, there's a linear collision, and we'll add 2 to the accumulator for each collision.
 
-                //We begin this process by generating an array numbered 0 to the size of the puzzle.
-                let arr = Array.from({length: this._size}, (x, i) => i);
+                    //We begin this process by generating an array numbered 0 to the size of the puzzle.
+                    let arr = Array.from({length: this._size}, (x, i) => i);
 
-                //If the block is in its intended row
-                if (!rowDist){
-                    //Iterate over the array we generated earlier
-                    for (let j in arr){
-                        //For ease of reference, this is our test column. Technically could just be replaced with j.
-                        let testCol = arr[j];
-                        //Calculate value K. This is simply the index of the test block within the same row we're comparing against
-                        let k = currentRow * this._size + testCol;
-                        //We calculate the intended test row of the test block.
-                        let intendTestRow = Math.floor((input[k] - 1)/this._size);
-                        //If the row we're on ISN'T the intended test row, we skip calculating.
-                        if (currentRow != intendTestRow) continue;
-                        //If the column we're testing is to the left of the column we're on
-                        if (testCol < currentCol){
-                            //We test if the block located there is larger. If so, add two.
-                            if (input[k] > curr){
-                                acc += 2;
-                            }
-                        } else {
-                            //If the column we're testing is to the right of the column we're on
-                            //We test if the block located there is smaller and is NOT the blank.
-                            if (input[k] < curr && input[k] !== 0){
-                                acc +=2;
+                    //If the block is in its intended row
+                    if (!rowDist){
+                        //Iterate over the array we generated earlier
+                        for (let j in arr){
+                            //For ease of reference, this is our test column. Technically could just be replaced with j.
+                            let testCol = arr[j];
+                            //Calculate value K. This is simply the index of the test block within the same row we're comparing against
+                            let k = currentRow * this._size + testCol;
+                            //We calculate the intended test row of the test block.
+                            let intendTestRow = Math.floor((input[k] - 1)/this._size);
+                            //If the row we're on ISN'T the intended test row, we skip calculating.
+                            if (currentRow != intendTestRow) continue;
+                            //If the column we're testing is to the left of the column we're on
+                            if (testCol < currentCol){
+                                //We test if the block located there is larger. If so, add two.
+                                if (input[k] > curr){
+                                    acc += 2;
+                                }
+                            } else {
+                                //If the column we're testing is to the right of the column we're on
+                                //We test if the block located there is smaller and is NOT the blank.
+                                if (input[k] < curr && input[k] !== 0){
+                                    acc += 2;
+                                }
                             }
                         }
                     }
-                }
 
-                //We do the exact same as above but for the blocks found in the column
-                if (!colDist){
-                    for (let j in arr){
-                        let testRow = arr[j];
-                        let k = currentCol + testRow * this._size;
-                        let intendTestCol = (input[k] - 1) % this._size;
-                        if (currentCol != intendTestCol) continue;
-                        if (testRow < currentRow){
-                            if (input[k] > curr){
-                                acc += 2;
-                            }
-                        } else {
-                            if (input[k] < curr && input[k] !== 0){
-                                acc += 2;
+                    //We do the exact same as above but for the blocks found in the column
+                    if (!colDist){
+                        for (let j in arr){
+                            let testRow = arr[j];
+                            let k = currentCol + testRow * this._size;
+                            let intendTestCol = (input[k] - 1) % this._size;
+                            if (currentCol != intendTestCol) continue;
+                            if (testRow < currentRow){
+                                if (input[k] > curr){
+                                    acc += 2;
+                                }
+                            } else {
+                                if (input[k] < curr && input[k] !== 0){
+                                    acc += 2;
+                                }
                             }
                         }
                     }
                 }
             }
+        } else {
+            let moved = input[lastIndex];
+            let intendedRow, currRow, lastRow, intendedCol, currCol, lastCol, rowDist, prevRowDist, colDist, prevColDist;
+
+            let arr = Array.from({length: this._size}, (x, i) => i);
+            if (isVert){
+                intendedRow = Math.floor((moved - 1) / this._size);
+                currCol = lastIndex % this._size;
+                currRow = Math.floor(lastIndex / this._size);
+                lastRow = Math.floor(blankIndex / this._size);
+                rowDist = Math.abs(intendedRow - currRow);
+                prevRowDist = Math.abs(intendedRow - lastRow);
+
+                if (rowDist > prevRowDist){
+                    acc++;
+                } else {
+                    acc--;
+                }
+                
+                if (!rowDist){
+                    for (let i in arr){
+                        let testCol = arr[i];
+                        let k = currRow * this._size + testCol;
+
+                        let intendTestRow = Math.floor((input[k] - 1) / this._size);
+                        if (currRow != intendTestRow) continue;
+
+                        if (testCol < currCol){
+                            if (input[k] > moved){
+                                acc +=4;
+                            }
+                        } else {
+                            if (input[k] < moved && input[k] !== 0){
+                                acc +=4;
+                            }
+                        }
+                    }
+                } else if (!prevRowDist){
+                    for (let i in arr){
+                        let testCol = arr[i];
+                        let k = lastRow * this._size + testCol;
+
+                        let intendTestRow = Math.floor((input[k] - 1) / this._size);
+                        if (lastRow != intendTestRow) continue;
+
+                        if (testCol < currCol){
+                            if (input[k] > moved){
+                                acc -=4;
+                            }
+                        } else {
+                            if (input[k] < moved && input[k] !== 0){
+                                acc -=4;
+                            }
+                        }
+                    }
+                }
+            } else {
+                intendedCol = (moved - 1) % this._size;
+                currCol = lastIndex % this._size;
+                currRow = Math.floor(lastIndex / this._size);
+                lastCol = blankIndex % this._size;
+                colDist = Math.abs(intendedCol - currCol);
+                prevColDist = Math.abs(intendedCol - lastCol);
+
+                if (colDist > prevColDist){
+                    acc++;
+                } else {
+                    acc--;
+                }
+
+                if (!colDist){
+                    for (let i in arr){
+                        let testRow = arr[i];
+                        let k = currCol + testRow * this._size;
+                        let intendTestCol = (input[k] - 1) % this._size;
+
+                        if (currCol != intendTestCol) continue;
+
+                        if (testRow < currRow){
+                            if (input[k] > moved){
+                                acc +=4;
+                            }
+                        } else {
+                            if (input[k] < moved && input[k] !== 0){
+                                acc +=4;
+                            }
+                        }
+                    }
+                } else if (!prevColDist){
+                    for (let i in arr){
+                        let testRow = arr[i];
+                        let k = lastCol + testRow * this._size;
+
+                        let intendTestCol = (input[k] - 1) % this._size;
+
+                        if (lastCol != intendTestCol) continue;
+
+                        if (testRow < currRow){
+                            if (input[k] > moved){
+                                acc -=4;
+                            }
+                        } else {
+                            if (input[k] < moved && input[k] !== 0){
+                                acc -=4;
+                            }
+                        }
+                    }
+                }
+            }
+
         }
-        
         //We have a secondary heuristic, inversion distance, by Ken'ichiro Takahashi. We simply count inversions in vertical moves as well as inversions in horizontal moves.
         //First we count vertical inversions.
-        let inversions = this._inversionCount(input);
+        let inversions = 0;
+        let horInversions = 0;
+        
+        if (isVert){
+            inversions = this._inversionCount(input);
+            //We divide the number of inversions by one less the size of the puzzle and add the remainder
+            vert = Math.floor(inversions / (this._size - 1)) + inversions % (this._size - 1);
+        }
 
-        //We divide the number of inversions by one less the size of the puzzle and add the remainder
-        let vert = Math.floor(inversions / (this._size - 1)) + inversions % (this._size - 1);
 
         //To calculate the horizontal inversions we must reassign the puzle new values. So the puzzle began as such:
         //    -----------------------------
@@ -425,33 +560,18 @@ class SlidePuzzle{
         //    |  4   |  8   |  12  |  0   |
         //    -----------------------------
 
-        //We associate the values of the first with that of the second and THEN count inversions.
-        //To do that, we create an ideal horizontal board TODO: memoize this bitch
-        let idealHor = [];
-        for (let i = 0; i < input.length; i++){
-            let n = this._size * (i % this._size) + Math.floor(i / this._size);
-            idealHor[n] = i + 1;
-        }
-        //After creating our board, we just set the 16 to zero for our blank
-        idealHor[input.length - 1] = 0;
-
-        //We use this to reassign values to our board to a transposed version fo the board
-        let horInput = [];
-
-        for (let i = 0; i < input.length; i++){
-            let n = this._size * (i % this._size) + Math.floor(i / this._size);
-            horInput.push(idealHor[n]);
-        }
-
+       
         //We now use this transposed board and count inversions the same way as last time
-        let horInversions = this._inversionCount(horInput);
-        let hor = Math.floor(horInversions / (this._size - 1)) + horInversions % (this._size - 1);
+        if (!isVert){
+            horInversions = this._inversionCount(input, true);
+        hor = Math.floor(horInversions / (this._size - 1)) + horInversions % (this._size - 1);
+        }
 
         //the invert distance is the sum of both the vertical and horizontal inversions
         let invertDistance = vert + hor;
 
         //We take the larger of the two and use this as our heuristic.
-        return acc > invertDistance ? acc : invertDistance;
+        return [Math.max(acc, invertDistance), acc, vert, hor];
     }
 
     //Checks if the board is solved. Obsolete, as the heuristic function should return zero for a solved board state.
@@ -469,12 +589,24 @@ class SlidePuzzle{
         return this._f;
     }
 
+    get blankIndex(){
+        return this._blankIndex;
+    }
+
+    get MD(){
+        return this._MD;
+    }
+
     /**
      * Solves the puzzle, uses IDA* with a dual-minmax heap. I will explain further on what this means
      */
     solve(){
+        let hvals = this.findH();
         //Establish an h value and set the g value to zero
-        this._h = this.findH();
+        this._h = hvals[0];
+        this._MD = hvals[1];
+        this._invVert = hvals[2];
+        this._invHor = hvals[3];
         this._g = 0;
         //Set the f value
         this._f = this._g + this._h;
@@ -520,7 +652,10 @@ class SlidePuzzle{
         let initState = {
             state: this.puzzle,
             g: 0,
-            h: this.findH(),
+            h: this._h,
+            MD: this._MD,
+            invVert: this._invVert,
+            invHor: this._invHor,
             moves: [],
             validMoves: this._validMovesArr,
             blankIndex: this._blankIndex,
@@ -540,24 +675,29 @@ class SlidePuzzle{
             
             //If the current amount of moves plus the estimated number of moves is greater than the maxDepth, it is not worth further exploring this branch and we can close it.
             nodes++;
-            if (currentState.h + currentState.g > maxDepth) continue;
+            if (currentState.f > maxDepth) continue;
             //Calculate the validMoves the currentState can do.
             currentState.validMoves = this.validMoves(currentState.blankIndex);
 
             //If the puzzle is solved, return the solution
             if (currentState.h === 0) return [currentState, nodes];
+            let movelength = currentState.moves.length;
 
 
             //If the next valid move is a Right move
-            if (currentState.validMoves.includes('R')){
+            if (currentState.validMoves.includes('R') && (!movelength || currentState.moves[movelength - 1] != 'L')){
                 //Execute the move to the right
                 let [potentialBlank, potentialMove] = this.slideRight([...currentState.state], currentState.blankIndex, [...currentState.validMoves]);
 
                 //Create a new object with the potential new state
+                let hvals = this.findH(potentialMove, potentialBlank, currentState.blankIndex, currentState.MD, currentState.invVert, currentState.invHor);
                 let potentialState = {
                     state: potentialMove,
                     g: currentState.g + 1,
-                    h: this.findH(potentialMove),
+                    h: hvals[0],
+                    MD: hvals[1],
+                    invVert: hvals[2],
+                    invHor: hvals[3],
                     moves: [...[...currentState.moves],'R'],
                     blankIndex: potentialBlank
                 };
@@ -567,13 +707,17 @@ class SlidePuzzle{
                 heap.insert(potentialState);
             }
 
-            if (currentState.validMoves.includes('L')){
+            if (currentState.validMoves.includes('L') && (!movelength || currentState.moves[movelength - 1] != 'R')){
                 let [potentialBlank, potentialMove] = this.slideLeft([...currentState.state], currentState.blankIndex, [...currentState.validMoves]);
 
+                let hvals = this.findH(potentialMove, potentialBlank, currentState.blankIndex, currentState.MD, currentState.invVert, currentState.invHor);
                 let potentialState = {
                     state: potentialMove,
                     g: currentState.g + 1,
-                    h: this.findH(potentialMove),
+                    h: hvals[0],
+                    MD: hvals[1],
+                    invVert: hvals[2],
+                    invHor: hvals[3],
                     moves: [...[...currentState.moves],'L'],
                     blankIndex: potentialBlank
                 };
@@ -582,13 +726,17 @@ class SlidePuzzle{
                 heap.insert(potentialState);
             }
 
-            if (currentState.validMoves.includes('U')){
+            if (currentState.validMoves.includes('U') && (!movelength || currentState.moves[movelength - 1] != 'D')){
                 let [potentialBlank, potentialMove] = this.slideUp([...currentState.state], currentState.blankIndex, [...currentState.validMoves]);
 
+                let hvals = this.findH(potentialMove, potentialBlank, currentState.blankIndex, currentState.MD, currentState.invVert, currentState.invHor);
                 let potentialState = {
                     state: potentialMove,
                     g: currentState.g + 1,
-                    h: this.findH(potentialMove),
+                    h: hvals[0],
+                    MD: hvals[1],
+                    invVert: hvals[2],
+                    invHor: hvals[3],
                     moves: [...[...currentState.moves],'U'],
                     blankIndex: potentialBlank
                 };
@@ -597,15 +745,19 @@ class SlidePuzzle{
                 heap.insert(potentialState);
             }
 
-            if (currentState.validMoves.includes('D')){
+            if (currentState.validMoves.includes('D') && (!movelength || currentState.moves[movelength - 1] != 'U')){
                 let [potentialBlank, potentialMove] = this.slideDown([...currentState.state], currentState.blankIndex, [...currentState.validMoves]);
 
+                let hvals = this.findH(potentialMove, potentialBlank, currentState.blankIndex, currentState.MD, currentState.invVert, currentState.invHor);
                 let potentialState = {
                     state: potentialMove,
                     g: currentState.g + 1,
-                    h: this.findH(potentialMove),
+                    h: hvals[0],
+                    MD: hvals[1],
+                    invVert: hvals[2],
+                    invHor: hvals[3],
                     moves: [...[...currentState.moves],'D'],
-                    blankIndex: potentialBlank,
+                    blankIndex: potentialBlank
                 };
                 potentialState.f = potentialState.g + potentialState.h;
 
@@ -624,11 +776,13 @@ let invalidBoard = [3, 9, 1, 15, 14, 11, 4, 6, 13, 0, 10, 12, 2, 7, 8, 5];
 let FourteenMove = [ 1, 2, 3, 4, 5, 11, 10, 7, 9, 6, 12, 15, 13, 14, 8, 0 ];
 let Eight26Move = [ 2, 4, 0, 3, 6, 7, 5, 8, 1 ];
 let LinearCollision = [1, 2, 3, 0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 4];
-let EightyMove = [15, 14, 8, 12, 10, 11, 9, 13, 2, 6, 5, 1, 3, 7, 4, 0];
-let FourtyNineMove = [ 12, 2, 11, 4, 3, 10, 7, 6, 8, 13, 14, 0, 9, 1, 5, 15 ];
-let q = new SlidePuzzle(4);
+let SixtySixMove = [14, 15, 8, 12, 10, 11, 9, 13, 2, 6, 5, 1, 3, 7, 4, 0];
+let FiftyMove = [ 4, 3, 2, 11, 5, 0, 7, 6, 10, 13, 9, 8, 15, 1, 12, 14 ];
+let FiftyNineMove = [ 4, 10, 12, 0, 15, 14, 1, 2, 9, 11, 3, 6, 8, 7, 5, 13 ];
+
+let q = new SlidePuzzle([5, 13, 1, 2, 3, 11, 14, 6, 9, 12, 0, 8, 15, 10, 4, 7]);
 // console.log(q);
-q.shuffle(200);
+// q.shuffle(1000);
 console.log(q);
 console.log(q.findH());
 let hrStart = process.hrtime();
@@ -636,3 +790,7 @@ console.log(q.solve());
 let hrEnd = process.hrtime(hrStart);
 hrEnd[1] /= 1000000;
 console.log(`seconds: ${hrEnd[0]} ms: ${hrEnd[1]}`);
+
+
+// 50 Move: Nodes: 72802 seconds: 0 ms: 470.347001
+// 66 Move: Nodes: 46439316 seconds: 175 ms: 261.723429
