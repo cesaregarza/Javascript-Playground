@@ -98,7 +98,7 @@ const addToMemo = (ind) => {
   memo[ind] = matrixMult(memo[ind - 1], memo[ind - 1]);
   
   //log that we updated the memoization array
-  console.log(`added memo index: ${2 ** ind}`);
+  // console.log(`added memo index: ${2 ** ind}`);
 };
 
 //breaks down n to its constituent powers of two
@@ -125,4 +125,8 @@ const fibo = (n) => {
   return matrixExp(n-1)[0][0].valueOf();
 };
 
-console.log(fibo(4786));
+let hrStart = process.hrtime();
+console.log(fibo(4000));
+let hrEnd = process.hrtime(hrStart);
+
+console.log(`time: ${hrEnd[1] / 1000000}`);

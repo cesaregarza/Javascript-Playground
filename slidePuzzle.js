@@ -748,6 +748,10 @@ class SlidePuzzle{
             if (currentState.validMoves.includes('D') && (!movelength || currentState.moves[movelength - 1] != 'U')){
                 let [potentialBlank, potentialMove] = this.slideDown([...currentState.state], currentState.blankIndex, [...currentState.validMoves]);
 
+                // console.log(`potential move: ${potentialMove}`);
+                // console.log(`potential blank: ${potentialBlank}`);
+                // console.log(currentState);
+
                 let hvals = this.findH(potentialMove, potentialBlank, currentState.blankIndex, currentState.MD, currentState.invVert, currentState.invHor);
                 let potentialState = {
                     state: potentialMove,
@@ -760,6 +764,8 @@ class SlidePuzzle{
                     blankIndex: potentialBlank
                 };
                 potentialState.f = potentialState.g + potentialState.h;
+
+                // console.log(potentialState)
 
                 heap.insert(potentialState);
             }
@@ -779,17 +785,21 @@ let LinearCollision = [1, 2, 3, 0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 4];
 let SixtySixMove = [14, 15, 8, 12, 10, 11, 9, 13, 2, 6, 5, 1, 3, 7, 4, 0];
 let FiftyMove = [ 4, 3, 2, 11, 5, 0, 7, 6, 10, 13, 9, 8, 15, 1, 12, 14 ];
 let FiftyNineMove = [ 4, 10, 12, 0, 15, 14, 1, 2, 9, 11, 3, 6, 8, 7, 5, 13 ];
-
-let q = new SlidePuzzle([5, 13, 1, 2, 3, 11, 14, 6, 9, 12, 0, 8, 15, 10, 4, 7]);
-// console.log(q);
-// q.shuffle(1000);
+ 
+let q = new SlidePuzzle(4);
+q.slideRight();
+q.slideDown();
 console.log(q);
-console.log(q.findH());
-let hrStart = process.hrtime();
-console.log(q.solve());
-let hrEnd = process.hrtime(hrStart);
-hrEnd[1] /= 1000000;
-console.log(`seconds: ${hrEnd[0]} ms: ${hrEnd[1]}`);
+// console.log(q._inversionCount());
+// console.log(q._inversionCount(FourteenMove, true));
+
+// console.log(q);
+// console.log(q.findH());
+// let hrStart = process.hrtime();
+// console.log(q.solve());
+// let hrEnd = process.hrtime(hrStart);
+// hrEnd[1] /= 1000000;
+// console.log(`seconds: ${hrEnd[0]} ms: ${hrEnd[1]}`);
 
 
 // 50 Move: Nodes: 72802 seconds: 0 ms: 470.347001

@@ -199,7 +199,7 @@ class Series {
 
 
 let x = [4, -3, 4, -2, 5, 1];
-let arr = [1, 24, 76, 160, 276];
+let arr = [24, 76, 160, 276];
 let arr2 = [24, 100, 260, 536, 960];
 let arr3 = [0, 45, 574, 3009, 10356, 27805, 63330];
 let s = new Series(arr, 'series');
@@ -208,9 +208,4 @@ let t = new Series(arr2, 'series');
 
 s.findPolynomial();
 s.printPolynomial();
-r.findPolynomial();
-r.printPolynomial();
-s.findSummationPoly();
-r.findSummationPoly();
-t.findPolynomial();
-t.printPolynomial();
+console.log(s.expandSeries(6));
